@@ -1,0 +1,230 @@
+FastServer HTTP API Specification
+
+Base URL: http://localhost:4001/api
+Listening Port: 4001
+
+These HTTP endpoints provide server control, file operations, and asynchronous jobs for FastServer.
+CORS is enabled (*). Allowed methods are GET, POST, and OPTIONS only.
+Content type is application/json (for most), but file upload/download uses application/octet-stream.
+
+【Authentication】
+If the API is disabled in the global configuration, all endpoints are unavailable.
+If a key is set, one of the following headers is required:
+- Authorization: Bearer <key>
+- x-fs-key: <key>
+
+【Common Limits】
+- JSON body: max 512 KB
+- Command text: max 8 KB
+- Text file read: max 1 MB
+- Upload (binary): max 64 MB
+- Fetch (remote download): max 100 MB
+- Unzip: total max 200 MB, entry max 5000
+
+================================================================================
+1. Health Checks
+================================================================================
+GET  /check_alive
+  Process‑level health check (not under /api)
+  Authentication: may be required if a key is set
+  Response (200): { "status": "ok", "message": "...", "timestamp": ..., "uptime": "...", "version": "..." }
+
+GET  /api/check_alive
+  API‑level health check
+  Authentication: may be required if a key is set
+  Response (200): { "status": "ok", "uptime": "...", "timestamp": ... }
+
+GET  /api/check_plan
+  Retrieves the current usage plan (pro or normal)
+  Authentication: required if a key is set
+  Response (200): { "ok": true, "plan": "pro" } or { "ok": true, "plan": "normal" }
+
+================================================================================
+2. API Root
+================================================================================
+GET  /api
+  Connectivity check for the API root
+  Authentication: required if a key is set
+  Response (200): { "ok": true, "message": "fastserver api root", "timestamp": ... }
+  Response (401): { "error": "Unauthorized" }
+  Response (403): { "error": "API disabled" }
+
+================================================================================
+3. Server Management
+================================================================================
+GET  /api/servers
+  Lists registered servers detected from the global configuration
+  Authentication: required if a key is set
+  Response (200): { "servers": [ { "id": "...", "name": "...", "software": "...", "version": "...", "path": "...", "status": "RUNNING" } ], "timestamp": ... }
+
+GET  /api/servers/{id}
+  Gets server metadata merged from global config and info.fss
+  Authentication: required if a key is set
+  Response (200): { "id": "...", "servername": "...", "software": "...", "version": "...", "serverpath": "...", "status": "RUNNING", "exists": true, "timestamp": ... }
+  Response (404): { "error": "Server not found: ..." }
+
+GET  /api/servers/{id}/status
+  Unified runtime status (RUNNING/STOPPED/STARTING/STOPPING)
+  Authentication: required if a key is set
+  Response (200): { "id": "...", "status": "RUNNING", "timestamp": ... }
+
+POST  /api/servers/{id}/start
+  Starts the server (requires Server.jar)
+  Authentication: required if a key is set
+  Response (200): { "ok": true, "status": "STARTING", "timestamp": ... }
+  Response (500): { "status": "false", "message": "`Server.jar` not found", "timestamp": ..., "uptime": "..." }
+
+POST  /api/servers/{id}/stop
+  Stops a running server
+  Authentication: required if a key is set
+  Response (200): { "ok": true, "status": "STOPPING", "timestamp": ... }
+  or { "ok": true, "status": "NOT_RUNNING", "timestamp": ... }
+
+POST  /api/servers/{id}/restart
+  Restarts the server (stop → start)
+  Authentication: required if a key is set
+  Response (200): { "ok": true, "status": "STARTING", "timestamp": ... }
+
+POST  /api/servers/{id}/command
+  Sends a console command to a running server managed by the manager
+  Authentication: required if a key is set
+  Request body: { "command": "string (required)" }
+  Response (200): { "ok": true, "command": "say hello", "timestamp": ... }
+  Response (500): server not running → { "status": "false", "message": "Server is not running", "timestamp": ..., "uptime": "..." }
+  Response (500): externally owned process → { "status": "false", "message": "This server process is externally owned; cannot send command", "timestamp": ..., "uptime": "..." }
+
+================================================================================
+4. Console
+================================================================================
+GET  /api/servers/{id}/console/tail
+  Tails logs/latest.log. Default 200 lines, max 2000 lines
+  Authentication: required if a key is set
+  Query parameters:
+    lines (int, optional, default: 200) — number of lines (1..2000)
+  Response (200): { "id": "...", "lines": 200, "log": [ "line1", "line2" ], "timestamp": ... }
+  Response (500): { "status": "false", "message": "latest.log not found", "timestamp": ..., "uptime": "..." }
+
+================================================================================
+5. Files
+================================================================================
+【Common】All paths are relative to the server's base directory.
+         Absolute paths, directory traversal (..), wildcards, etc. are rejected.
+
+GET  /api/servers/{id}/files/list
+  Directory listing
+  Authentication: required if a key is set
+  Query parameters:
+    path (string, optional, default: "") — relative directory (empty = base)
+  Response (200): { "path": "", "items": [ { "name": "...", "type": "directory/file", "size": 0 } ], "timestamp": ... }
+
+GET  /api/servers/{id}/files/read
+  Reads a small text file (<= 1 MB)
+  Authentication: required if a key is set
+  Query parameters:
+    path (string, required) — relative file path
+  Response (200): { "path": "server.properties", "content": "...", "timestamp": ... }
+  Response (500): { "status": "false", "message": "File too large to read (>1MB)", "timestamp": ..., "uptime": "..." }
+
+POST  /api/servers/{id}/files/write
+  Writes a text file (new/overwrite)
+  Authentication: required if a key is set
+  Request body: { "path": "string (required)", "content": "string (required)" }
+  Response (200): { "path": "...", "ok": true, "timestamp": ... }
+
+POST  /api/servers/{id}/files/create
+  Creates an empty file
+  Authentication: required if a key is set
+  Request body: { "path": "string (required)" }
+  Response (200): { "path": "...", "ok": true, "timestamp": ... }
+
+POST  /api/servers/{id}/files/mkdir
+  Creates a directory
+  Authentication: required if a key is set
+  Request body: { "path": "string (required)", "parents": "boolean (default true)" }
+  Response (200): { "path": "...", "ok": true, "timestamp": ... }
+
+POST  /api/servers/{id}/files/delete
+  Deletes a file or directory (non‑recursive directory must be empty)
+  Authentication: required if a key is set
+  Request body: { "path": "string (required)", "recursive": "boolean (default false)" }
+  Response (200): { "deleted": "...", "ok": true, "timestamp": ... }
+  Response (500): { "status": "false", "message": "Directory not empty", "timestamp": ..., "uptime": "..." }
+
+POST  /api/servers/{id}/files/rename
+  Moves or renames a file/directory
+  Authentication: required if a key is set
+  Request body: { "from": "string (required)", "to": "string (required)", "overwrite": "boolean (default false)" }
+  Response (200): { "from": "...", "to": "...", "ok": true, "timestamp": ... }
+
+POST  /api/servers/{id}/files/copy
+  Copies a file/directory
+  Authentication: required if a key is set
+  Request body: { "from": "string (required)", "to": "string (required)", "overwrite": "boolean (default false)" }
+  Response (200): { "from": "...", "to": "...", "ok": true, "timestamp": ... }
+
+POST  /api/servers/{id}/files/upload
+  Uploads a binary file (max 64 MB)
+  Authentication: required if a key is set
+  Query parameters:
+    path (string, required) — relative destination path
+    overwrite (boolean, optional, default: true) — allow overwrite
+  Request body: binary body
+  Response (200): { "path": "...", "bytes": 12345, "ok": true, "timestamp": ... }
+  Response (500): { "status": "false", "message": "Payload too large", "timestamp": ..., "uptime": "..." }
+
+GET  /api/servers/{id}/files/download
+  Downloads a file as an attachment (returns binary)
+  Authentication: required if a key is set
+  Query parameters:
+    path (string, required) — relative file path
+  Response (200): Content-Type inferred, Content-Disposition set
+  Response (500): { "status": "false", "message": "File not found or invalid", "timestamp": ..., "uptime": "..." }
+
+POST  /api/servers/{id}/files/fetch
+  Server downloads from a remote http/https URL and saves it (max 100 MB)
+  Authentication: required if a key is set
+  Request body: { "url": "string (http/https required)", "path": "string", "overwrite": "boolean (default true)" }
+  Response (200): { "path": "...", "bytes": 9999, "ok": true, "timestamp": ... }
+  Response (500): { "status": "false", "message": "Only http/https is allowed", "timestamp": ..., "uptime": "..." }
+
+POST  /api/servers/{id}/files/zip
+  Creates a ZIP from a directory (asynchronous job)
+  Authentication: required if a key is set
+  Request body: { "source": "string (directory)", "zip_path": "string (zip file path)" }
+  Response (200): { "job": { "id": "...", "type": "zip", "status": "queued" }, "timestamp": ... }
+
+POST  /api/servers/{id}/files/unzip
+  Extracts a ZIP to a directory (asynchronous job). Enforces safe extraction (total max 200 MB, entry max 5000)
+  Authentication: required if a key is set
+  Request body: { "zip_path": "string (zip file)", "dest": "string (destination directory)" }
+  Response (200): { "job": { "id": "...", "type": "unzip", "status": "queued" }, "timestamp": ... }
+
+================================================================================
+6. Jobs
+================================================================================
+GET  /api/jobs
+  Lists jobs
+  Authentication: required if a key is set
+  Response (200): { "jobs": [ { "id": "...", "type": "zip/unzip", "status": "...", "progress": 55, "processed_bytes": ..., "total_bytes": ..., "source": "...", "target": "...", "started_at": ... } ], "timestamp": ... }
+
+GET  /api/jobs/{id}
+  Gets detailed job information
+  Authentication: required if a key is set
+  Response (200): { "id": "...", "type": "...", "status": "completed", "progress": 100, "processed_bytes": ..., "total_bytes": ..., "source": "...", "target": "...", "started_at": ..., "finished_at": ..., "message": "...", "timestamp": ... }
+  Response (404): { "error": "Job not found" }
+
+POST  /api/jobs/{id}/cancel
+  Attempts to cancel a running job
+  Authentication: required if a key is set
+  Response (200): { "id": "...", "type": "...", "status": "canceled", "message": "Job canceled", "finished_at": ..., "timestamp": ... }
+  Response (500): { "status": "false", "message": "Failed to cancel job", "timestamp": ..., "uptime": "..." }
+
+================================================================================
+7. Errors
+================================================================================
+Common status codes:
+  401: { "error": "Unauthorized" }
+  403: { "error": "API disabled" }
+  404: { "error": "Unknown API path: ..." }
+  405: { "error": "Method Not Allowed" }
+  500: { "status": "false", "message": "Error message", "timestamp": ..., "uptime": "..." }
