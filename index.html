@@ -15,840 +15,84 @@
             --dark: #34495e;
             --gray: #95a5a6;
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--dark));
-            color: white;
-            padding: 1.5rem 0;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 2rem;
-        }
-        
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-        }
-        
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .api-key-display {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: var(--success);
-            animation: pulse 2s infinite;
-        }
-        
-        .status-dot.disconnected {
-            background-color: var(--danger);
-            animation: none;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        
-        .card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            margin-bottom: 1.5rem;
-            overflow: hidden;
-        }
-        
-        .card-header {
-            background-color: var(--light);
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #ddd;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .card-body {
-            padding: 1.5rem;
-        }
-        
-        .server-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .server-card {
-            border-left: 4px solid var(--secondary);
-            transition: transform 0.3s ease;
-        }
-        
-        .server-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .server-info {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-        }
-        
-        .server-name {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: var(--primary);
-        }
-        
-        .server-detail {
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .server-status {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-        
-        .status-running {
-            background-color: rgba(39, 174, 96, 0.2);
-            color: var(--success);
-        }
-        
-        .status-stopped {
-            background-color: rgba(231, 76, 60, 0.2);
-            color: var(--danger);
-        }
-        
-        .status-starting {
-            background-color: rgba(243, 156, 18, 0.2);
-            color: var(--warning);
-        }
-        
-        .status-stopping {
-            background-color: rgba(155, 89, 182, 0.2);
-            color: #9b59b6;
-        }
-        
-        .server-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-        
-        .btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .btn-primary {
-            background-color: var(--secondary);
-            color: white;
-        }
-        
-        .btn-primary:hover:not(:disabled) {
-            background-color: #2980b9;
-        }
-        
-        .btn-success {
-            background-color: var(--success);
-            color: white;
-        }
-        
-        .btn-success:hover:not(:disabled) {
-            background-color: #219653;
-        }
-        
-        .btn-warning {
-            background-color: var(--warning);
-            color: white;
-        }
-        
-        .btn-warning:hover:not(:disabled) {
-            background-color: #e67e22;
-        }
-        
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-        
-        .btn-danger:hover:not(:disabled) {
-            background-color: #c0392b;
-        }
-        
-        .btn-sm {
-            padding: 0.3rem 0.8rem;
-            font-size: 0.85rem;
-        }
-        
-        .console-output {
-            background-color: #1e1e1e;
-            color: #f0f0f0;
-            font-family: 'Courier New', monospace;
-            padding: 1rem;
-            border-radius: 5px;
-            max-height: 400px;
-            overflow-y: auto;
-            margin-bottom: 1rem;
-        }
-        
-        .console-line {
-            margin-bottom: 0.3rem;
-            line-height: 1.4;
-        }
-        
-        .console-input {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .console-input input {
-            flex: 1;
-            padding: 0.7rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .file-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-        
-        .file-item {
-            background-color: var(--light);
-            padding: 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        
-        .file-item:hover {
-            background-color: #dfe6e9;
-        }
-        
-        .file-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            color: var(--gray);
-        }
-        
-        .file-name {
-            font-weight: 600;
-            margin-bottom: 0.3rem;
-            word-break: break-all;
-        }
-        
-        .file-size {
-            font-size: 0.8rem;
-            color: var(--gray);
-        }
-        
-        /* モーダルのレスポンシブ改善 */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: flex-start;
-            justify-content: center;
-            overflow-y: auto;
-            padding: 20px 0;
-        }
-        
-        .modal-content {
-            background-color: white;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            margin: auto;
-        }
-        
-        .modal-header {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
-        }
-        
-        .modal-body {
-            padding: 1.5rem;
-            overflow-y: auto;
-            flex-grow: 1;
-        }
-        
-        .modal-footer {
-            padding: 1rem 1.5rem;
-            border-top: 1px solid #ddd;
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.5rem;
-            flex-shrink: 0;
-        }
-        
-        .close {
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--gray);
-        }
-        
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 0.7rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        
-        .alert {
-            padding: 1rem;
-            border-radius: 5px;
-            margin-bottom: 1rem;
-        }
-        
-        .alert-success {
-            background-color: rgba(39, 174, 96, 0.2);
-            color: var(--success);
-            border-left: 4px solid var(--success);
-        }
-        
-        .alert-error {
-            background-color: rgba(231, 76, 60, 0.2);
-            color: var(--danger);
-            border-left: 4px solid var(--danger);
-        }
-        
-        .tab-container {
-            margin-bottom: 1.5rem;
-        }
-        
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 1rem;
-            overflow-x: auto;
-        }
-        
-        .tab {
-            padding: 0.8rem 1.5rem;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            white-space: nowrap;
-        }
-        
-        .tab.active {
-            border-bottom-color: var(--secondary);
-            color: var(--secondary);
-            font-weight: 600;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .connection-status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 1rem;
-        }
-        
-        .connection-message {
-            font-size: 0.9rem;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            background-color: var(--light);
-        }
-        
-        .connection-success {
-            background-color: rgba(39, 174, 96, 0.2);
-            color: var(--success);
-        }
-        
-        .connection-error {
-            background-color: rgba(231, 76, 60, 0.2);
-            color: var(--danger);
-        }
-        
-        /* 操作ログのスタイル */
-        .log-container {
-            max-height: 500px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 1rem;
-            background-color: #f9f9f9;
-        }
-        
-        .log-entry {
-            padding: 0.7rem;
-            margin-bottom: 0.5rem;
-            border-radius: 5px;
-            border-left: 4px solid var(--secondary);
-            background-color: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .log-timestamp {
-            font-size: 0.8rem;
-            color: var(--gray);
-            margin-bottom: 0.3rem;
-        }
-        
-        .log-message {
-            font-weight: 500;
-        }
-        
-        .log-server {
-            display: inline-block;
-            background-color: var(--light);
-            padding: 0.2rem 0.5rem;
-            border-radius: 3px;
-            font-size: 0.8rem;
-            margin-right: 0.5rem;
-        }
-        
-        .log-type-info {
-            border-left-color: var(--secondary);
-        }
-        
-        .log-type-success {
-            border-left-color: var(--success);
-        }
-        
-        .log-type-warning {
-            border-left-color: var(--warning);
-        }
-        
-        .log-type-error {
-            border-left-color: var(--danger);
-        }
-        
-        .log-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-        
-        .log-filters {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .log-filter-btn {
-            padding: 0.3rem 0.8rem;
-            border: 1px solid #ddd;
-            background: white;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-        }
-        
-        .log-filter-btn.active {
-            background-color: var(--secondary);
-            color: white;
-            border-color: var(--secondary);
-        }
-        
-        /* ログタブのスタイル */
-        .log-tabs {
-            display: flex;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 1rem;
-        }
-        
-        .log-tab {
-            padding: 0.8rem 1.5rem;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            white-space: nowrap;
-        }
-        
-        .log-tab.active {
-            border-bottom-color: var(--secondary);
-            color: var(--secondary);
-            font-weight: 600;
-        }
-        
-        .log-tab-content {
-            display: none;
-        }
-        
-        .log-tab-content.active {
-            display: block;
-        }
-        
-        /* ダッシュボードのスタイル */
-        .dashboard-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            text-align: center;
-            border-top: 4px solid var(--secondary);
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-        
-        .stat-label {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-        
-        /* クイックアクションのスタイル */
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        
-        .quick-action-btn {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 1.5rem 1rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .quick-action-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border-color: var(--secondary);
-        }
-        
-        .quick-action-icon {
-            font-size: 2rem;
-            color: var(--secondary);
-        }
-        
-        .quick-action-label {
-            font-weight: 600;
-        }
-        
-        /* プレイヤーリストのスタイル */
-        .player-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-        
-        .player-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            text-align: center;
-            border-left: 4px solid var(--success);
-        }
-        
-        .player-name {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        
-        .player-info {
-            font-size: 0.8rem;
-            color: var(--gray);
-        }
-        
-        /* バックアップ管理のスタイル */
-        .backup-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-        
-        .backup-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            border-left: 4px solid var(--warning);
-        }
-        
-        .backup-name {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        
-        .backup-info {
-            font-size: 0.8rem;
-            color: var(--gray);
-            margin-bottom: 0.5rem;
-        }
-        
-        /* 設定のスタイル */
-        .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .setting-group {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        
-        .setting-title {
-            font-weight: 600;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-        
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-        
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
-        }
-        
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        
-        input:checked + .toggle-slider {
-            background-color: var(--success);
-        }
-        
-        input:checked + .toggle-slider:before {
-            transform: translateX(26px);
-        }
-        
-        /* スマホ向けの設定 */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f5f7fa; color: #333; line-height: 1.6; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        header { background: linear-gradient(135deg, var(--primary), var(--dark)); color: white; padding: 1.5rem 0; border-radius: 10px; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header-content { display: flex; justify-content: space-between; align-items: center; padding: 0 2rem; flex-wrap: wrap; gap: 10px; }
+        .logo { font-size: 1.8rem; font-weight: bold; }
+        .header-controls { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .api-key-display { background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 5px; font-size: 0.9rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .status-indicator { display: flex; align-items: center; gap: 10px; }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; background-color: var(--success); animation: pulse 2s infinite; }
+        .status-dot.disconnected { background-color: var(--danger); animation: none; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem; overflow: hidden; }
+        .card-header { background-color: var(--light); padding: 1rem 1.5rem; border-bottom: 1px solid #ddd; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .card-body { padding: 1.5rem; }
+        .server-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .server-card { border-left: 4px solid var(--secondary); transition: transform 0.3s ease; }
+        .server-card:hover { transform: translateY(-5px); }
+        .server-info { display: flex; flex-direction: column; gap: 0.8rem; }
+        .server-name { font-size: 1.3rem; font-weight: bold; color: var(--primary); }
+        .server-detail { display: flex; justify-content: space-between; }
+        .server-status { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+        .status-running { background-color: rgba(39,174,96,0.2); color: var(--success); }
+        .status-stopped { background-color: rgba(231,76,60,0.2); color: var(--danger); }
+        .status-starting, .status-stopping { background-color: rgba(243,156,18,0.2); color: var(--warning); }
+        .server-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 5px; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-primary { background-color: var(--secondary); color: white; }
+        .btn-primary:hover:not(:disabled) { background-color: #2980b9; }
+        .btn-success { background-color: var(--success); color: white; }
+        .btn-success:hover:not(:disabled) { background-color: #219653; }
+        .btn-warning { background-color: var(--warning); color: white; }
+        .btn-warning:hover:not(:disabled) { background-color: #e67e22; }
+        .btn-danger { background-color: var(--danger); color: white; }
+        .btn-danger:hover:not(:disabled) { background-color: #c0392b; }
+        .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.85rem; }
+        .console-output { background-color: #1e1e1e; color: #f0f0f0; font-family: 'Courier New', monospace; padding: 1rem; border-radius: 5px; max-height: 400px; overflow-y: auto; margin-bottom: 1rem; }
+        .console-line { margin-bottom: 0.3rem; line-height: 1.4; }
+        .console-input { display: flex; gap: 0.5rem; }
+        .console-input input { flex: 1; padding: 0.7rem; border: 1px solid #ddd; border-radius: 5px; font-family: 'Courier New', monospace; }
+        .file-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+        .file-item { background-color: var(--light); padding: 1rem; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; text-align: center; }
+        .file-item:hover { background-color: #dfe6e9; }
+        .file-icon { font-size: 2rem; margin-bottom: 0.5rem; color: var(--gray); }
+        .file-name { font-weight: 600; margin-bottom: 0.3rem; word-break: break-all; }
+        .file-size { font-size: 0.8rem; color: var(--gray); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 20px 0; }
+        .modal-content { background-color: white; border-radius: 10px; width: 90%; max-width: 600px; max-height: 90vh; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; margin: auto; }
+        .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .modal-body { padding: 1.5rem; overflow-y: auto; flex-grow: 1; }
+        .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #ddd; display: flex; justify-content: flex-end; gap: 0.5rem; flex-shrink: 0; }
+        .close { font-size: 1.5rem; cursor: pointer; color: var(--gray); }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+        .form-control { width: 100%; padding: 0.7rem; border: 1px solid #ddd; border-radius: 5px; }
+        .alert { padding: 1rem; border-radius: 5px; margin-bottom: 1rem; }
+        .alert-success { background-color: rgba(39,174,96,0.2); color: var(--success); border-left: 4px solid var(--success); }
+        .alert-error { background-color: rgba(231,76,60,0.2); color: var(--danger); border-left: 4px solid var(--danger); }
+        .tab-container { margin-bottom: 1.5rem; }
+        .tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 1rem; overflow-x: auto; }
+        .tab { padding: 0.8rem 1.5rem; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+        .tab.active { border-bottom-color: var(--secondary); color: var(--secondary); font-weight: 600; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .connection-status { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+        .connection-message { font-size: 0.9rem; padding: 0.5rem 1rem; border-radius: 5px; background-color: var(--light); }
+        .connection-success { background-color: rgba(39,174,96,0.2); color: var(--success); }
+        .connection-error { background-color: rgba(231,76,60,0.2); color: var(--danger); }
+        .log-container { max-height: 500px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; padding: 1rem; background-color: #f9f9f9; }
+        .log-entry { padding: 0.7rem; margin-bottom: 0.5rem; border-radius: 5px; border-left: 4px solid var(--secondary); background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .log-timestamp { font-size: 0.8rem; color: var(--gray); margin-bottom: 0.3rem; }
+        .log-message { font-weight: 500; }
         @media (max-width: 768px) {
-            .server-list {
-                grid-template-columns: 1fr;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-            
-            .header-controls {
-                flex-direction: column;
-                width: 100%;
-            }
-            
-            .api-key-display {
-                max-width: 100%;
-            }
-            
-            .server-actions {
-                flex-wrap: wrap;
-            }
-            
-            .tabs, .log-tabs {
-                flex-wrap: wrap;
-            }
-            
-            .dashboard-stats, .quick-actions {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .modal {
-                padding: 10px;
-                align-items: stretch;
-            }
-            
-            .modal-content {
-                width: 100%;
-                max-height: 95vh;
-            }
-            
-            .modal-header,
-            .modal-body,
-            .modal-footer {
-                padding: 1rem;
-            }
-            
-            .settings-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            
-            .setting-group {
-                padding: 1rem;
-            }
-        }
-        
-        /* さらに小さな画面向け */
-        @media (max-width: 480px) {
-            .modal {
-                padding: 5px;
-            }
-            
-            .modal-content {
-                max-height: 98vh;
-            }
-            
-            .modal-header h3 {
-                font-size: 1.2rem;
-            }
-            
-            .modal-footer {
-                flex-direction: column;
-            }
-            
-            .modal-footer .btn {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
-            
-            .dashboard-stats, .quick-actions {
-                grid-template-columns: 1fr;
-            }
+            .server-list { grid-template-columns: 1fr; }
+            .header-content { flex-direction: column; text-align: center; }
+            .header-controls { flex-direction: column; width: 100%; }
+            .api-key-display { max-width: 100%; }
         }
     </style>
 </head>
@@ -858,9 +102,7 @@
             <div class="header-content">
                 <div class="logo">FastServer Minecraft サーバーパネル</div>
                 <div class="header-controls">
-                    <div class="api-key-display" id="api-key-display">
-                        APIキーが設定されていません
-                    </div>
+                    <div class="api-key-display" id="api-key-display">APIキーが設定されていません</div>
                     <button class="btn btn-primary btn-sm" id="settings-btn">設定</button>
                     <div class="status-indicator">
                         <div class="status-dot" id="status-dot"></div>
@@ -870,9 +112,7 @@
             </div>
         </header>
         
-        <div class="connection-status" id="connection-status" style="display: none;">
-            <!-- 接続ステータスメッセージがここに表示されます -->
-        </div>
+        <div class="connection-status" id="connection-status" style="display: none;"></div>
         
         <div class="tab-container">
             <div class="tabs">
@@ -886,97 +126,38 @@
                 <div class="tab" data-tab="logs">操作ログ</div>
             </div>
             
-            <!-- ダッシュボードタブ -->
             <div class="tab-content active" id="dashboard-tab">
-                <div class="dashboard-stats">
-                    <div class="stat-card">
-                        <div class="stat-value" id="total-servers">0</div>
-                        <div class="stat-label">サーバー数</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="running-servers">0</div>
-                        <div class="stat-label">稼働中サーバー</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="total-players">0</div>
-                        <div class="stat-label">オンラインプレイヤー</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="active-jobs">0</div>
-                        <div class="stat-label">実行中ジョブ</div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <span>クイックアクション</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="quick-actions">
-                            <div class="quick-action-btn" id="quick-restart-all">
-                                <div class="quick-action-icon">🔄</div>
-                                <div class="quick-action-label">全サーバー再起動</div>
-                            </div>
-                            <div class="quick-action-btn" id="quick-stop-all">
-                                <div class="quick-action-icon">⏹️</div>
-                                <div class="quick-action-label">全サーバー停止</div>
-                            </div>
-                            <div class="quick-action-btn" id="quick-backup">
-                                <div class="quick-action-icon">💾</div>
-                                <div class="quick-action-label">バックアップ作成</div>
-                            </div>
-                            <div class="quick-action-btn" id="quick-cleanup">
-                                <div class="quick-action-icon">🧹</div>
-                                <div class="quick-action-label">ログクリンナップ</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
                 <div class="card">
                     <div class="card-header">
                         <span>サーバーステータス</span>
                         <button class="btn btn-primary btn-sm" id="refresh-dashboard">更新</button>
                     </div>
                     <div class="card-body">
-                        <div class="server-list" id="dashboard-server-list">
-                            <!-- サーバーカードがここに動的に追加されます -->
-                        </div>
+                        <div class="server-list" id="dashboard-server-list"></div>
                     </div>
                 </div>
             </div>
             
-            <!-- サーバー管理タブ -->
             <div class="tab-content" id="servers-tab">
                 <div class="card">
                     <div class="card-header">
                         <span>サーバー一覧</span>
-                        <button class="btn btn-primary btn-sm" id="refresh-servers">
-                            <span class="loading" id="refresh-loading" style="display: none;"></span>
-                            更新
-                        </button>
+                        <button class="btn btn-primary btn-sm" id="refresh-servers">更新</button>
                     </div>
                     <div class="card-body">
-                        <div class="server-list" id="server-list">
-                            <!-- サーバーカードがここに動的に追加されます -->
-                        </div>
+                        <div class="server-list" id="server-list"></div>
                     </div>
                 </div>
             </div>
             
-            <!-- コンソールタブ -->
             <div class="tab-content" id="console-tab">
                 <div class="card">
                     <div class="card-header">
                         <span>サーバーコンソール</span>
-                        <select id="console-server-select">
-                            <option value="">サーバーを選択...</option>
-                        </select>
+                        <select id="console-server-select"><option value="">サーバーを選択...</option></select>
                     </div>
                     <div class="card-body">
-                        <div class="console-output" id="console-output">
-                            <div class="console-line">サーバーを選択するとコンソール出力が表示されます</div>
-                        </div>
+                        <div class="console-output" id="console-output"><div class="console-line">サーバーを選択するとコンソール出力が表示されます</div></div>
                         <div class="console-input">
                             <input type="text" id="console-input" placeholder="コマンドを入力..." disabled>
                             <button class="btn btn-primary" id="send-command" disabled>送信</button>
@@ -985,44 +166,33 @@
                 </div>
             </div>
             
-            <!-- ファイル管理タブ -->
             <div class="tab-content" id="files-tab">
                 <div class="card">
                     <div class="card-header">
                         <span>ファイルブラウザ</span>
                         <div>
-                            <select id="files-server-select">
-                                <option value="">サーバーを選択...</option>
-                            </select>
+                            <select id="files-server-select"><option value="">サーバーを選択...</option></select>
                             <button class="btn btn-primary btn-sm" id="refresh-files">更新</button>
                         </div>
                     </div>
                     <div class="card-body">
-                        <div class="file-list" id="file-list">
-                            <!-- ファイルリストがここに動的に追加されます -->
-                        </div>
+                        <div class="file-list" id="file-list"></div>
                     </div>
                 </div>
             </div>
             
-            <!-- プレイヤー管理タブ -->
             <div class="tab-content" id="players-tab">
                 <div class="card">
                     <div class="card-header">
                         <span>プレイヤー管理</span>
-                        <select id="players-server-select">
-                            <option value="">サーバーを選択...</option>
-                        </select>
+                        <select id="players-server-select"><option value="">サーバーを選択...</option></select>
                     </div>
                     <div class="card-body">
-                        <div class="player-list" id="player-list">
-                            <!-- プレイヤーリストがここに動的に追加されます -->
-                        </div>
+                        <div id="player-list"></div>
                     </div>
                 </div>
             </div>
             
-            <!-- バックアップタブ -->
             <div class="tab-content" id="backups-tab">
                 <div class="card">
                     <div class="card-header">
@@ -1030,14 +200,11 @@
                         <button class="btn btn-primary btn-sm" id="create-backup">バックアップ作成</button>
                     </div>
                     <div class="card-body">
-                        <div class="backup-list" id="backup-list">
-                            <!-- バックアップリストがここに動的に追加されます -->
-                        </div>
+                        <div id="backup-list"></div>
                     </div>
                 </div>
             </div>
             
-            <!-- ジョブ管理タブ -->
             <div class="tab-content" id="jobs-tab">
                 <div class="card">
                     <div class="card-header">
@@ -1045,14 +212,11 @@
                         <button class="btn btn-primary btn-sm" id="refresh-jobs">更新</button>
                     </div>
                     <div class="card-body">
-                        <div id="jobs-list">
-                            <!-- ジョブリストがここに動的に追加されます -->
-                        </div>
+                        <div id="jobs-list"></div>
                     </div>
                 </div>
             </div>
             
-            <!-- 操作ログタブ -->
             <div class="tab-content" id="logs-tab">
                 <div class="card">
                     <div class="card-header">
@@ -1063,51 +227,8 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <!-- ログタブ -->
-                        <div class="log-tabs">
-                            <div class="log-tab active" data-log-tab="all">すべてのログ</div>
-                            <div class="log-tab" data-log-tab="server">サーバー操作</div>
-                            <div class="log-tab" data-log-tab="file">ファイル操作</div>
-                            <div class="log-tab" data-log-tab="command">コマンド</div>
-                            <div class="log-tab" data-log-tab="system">システム</div>
-                        </div>
-                        
-                        <!-- すべてのログ -->
-                        <div class="log-tab-content active" id="log-tab-all">
-                            <div class="log-container" id="log-container-all">
-                                <!-- すべてのログがここに表示されます -->
-                            </div>
-                        </div>
-                        
-                        <!-- サーバー操作ログ -->
-                        <div class="log-tab-content" id="log-tab-server">
-                            <div class="log-container" id="log-container-server">
-                                <!-- サーバー操作ログがここに表示されます -->
-                            </div>
-                        </div>
-                        
-                        <!-- ファイル操作ログ -->
-                        <div class="log-tab-content" id="log-tab-file">
-                            <div class="log-container" id="log-container-file">
-                                <!-- ファイル操作ログがここに表示されます -->
-                            </div>
-                        </div>
-                        
-                        <!-- コマンドログ -->
-                        <div class="log-tab-content" id="log-tab-command">
-                            <div class="log-container" id="log-container-command">
-                                <!-- コマンドログがここに表示されます -->
-                            </div>
-                        </div>
-                        
-                        <!-- システムログ -->
-                        <div class="log-tab-content" id="log-tab-system">
-                            <div class="log-container" id="log-container-system">
-                                <!-- システムログがここに表示されます -->
-                            </div>
-                        </div>
-                        
-                        <div class="log-actions">
+                        <div class="log-container" id="log-container"></div>
+                        <div style="margin-top: 10px;">
                             <button class="btn btn-primary btn-sm" id="export-logs">ログをエクスポート</button>
                         </div>
                     </div>
@@ -1115,7 +236,6 @@
             </div>
         </div>
         
-        <!-- アラート表示エリア -->
         <div id="alert-area"></div>
     </div>
     
@@ -1127,9 +247,7 @@
                 <span class="close">&times;</span>
             </div>
             <div class="modal-body">
-                <div class="server-info" id="modal-server-info">
-                    <!-- サーバー詳細情報がここに動的に追加されます -->
-                </div>
+                <div class="server-info" id="modal-server-info"></div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" id="modal-start-btn">起動</button>
@@ -1147,66 +265,29 @@
                 <span class="close">&times;</span>
             </div>
             <div class="modal-body">
-                <div class="settings-grid">
-                    <div class="setting-group">
-                        <div class="setting-title">API設定</div>
-                        <div class="form-group">
-                            <label for="api-base-url">APIベースURL</label>
-                            <input type="text" id="api-base-url" class="form-control" value="http://localhost:4001/api">
-                        </div>
-                        <div class="form-group">
-                            <label for="api-key-input">APIキー</label>
-                            <input type="password" id="api-key-input" class="form-control" placeholder="APIキーを入力">
-                        </div>
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="save-settings">
-                                設定を保存する
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <div class="setting-title">表示設定</div>
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="auto-refresh" checked>
-                                自動更新を有効にする
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label for="refresh-interval">更新間隔（秒）</label>
-                            <input type="number" id="refresh-interval" class="form-control" value="30" min="5" max="300">
-                        </div>
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="dark-mode">
-                                ダークモード
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <div class="setting-title">通知設定</div>
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="notify-server-status">
-                                サーバーステータス変更時に通知
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="notify-backup-complete">
-                                バックアップ完了時に通知
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="notify-errors">
-                                エラー発生時に通知
-                            </label>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label for="api-base-url">APIベースURL</label>
+                    <input type="text" id="api-base-url" class="form-control" value="http://localhost:4001/api">
+                </div>
+                <div class="form-group">
+                    <label for="api-key-input">APIキー</label>
+                    <input type="password" id="api-key-input" class="form-control" placeholder="APIキーを入力">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="save-settings">
+                        設定を保存する
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="auto-refresh" checked>
+                        自動更新を有効にする
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="refresh-interval">更新間隔（秒）</label>
+                    <input type="number" id="refresh-interval" class="form-control" value="30" min="5" max="300">
                 </div>
             </div>
             <div class="modal-footer">
@@ -1217,687 +298,409 @@
     </div>
 
     <script>
-        // 設定
-        let API_BASE_URL = 'http://localhost:4001/api';
-        let API_KEY = '';
-        let AUTO_REFRESH = true;
-        let REFRESH_INTERVAL = 30;
-        let refreshIntervalId = null;
-        
-        // グローバル状態
-        let currentServerId = null;
-        let currentPath = '';
-        let consoleInterval = null;
-        let isConnected = false;
-        let operationLogs = [];
-        let currentLogTab = 'all';
-        
-        // DOM要素
-        const serverListEl = document.getElementById('server-list');
-        const dashboardServerListEl = document.getElementById('dashboard-server-list');
-        const consoleOutputEl = document.getElementById('console-output');
-        const consoleInputEl = document.getElementById('console-input');
-        const sendCommandBtn = document.getElementById('send-command');
-        const fileListEl = document.getElementById('file-list');
-        const playerListEl = document.getElementById('player-list');
-        const backupListEl = document.getElementById('backup-list');
-        const jobsListEl = document.getElementById('jobs-list');
-        const alertAreaEl = document.getElementById('alert-area');
-        const serverDetailModal = document.getElementById('server-detail-modal');
-        const modalServerName = document.getElementById('modal-server-name');
-        const modalServerInfo = document.getElementById('modal-server-info');
-        const modalStartBtn = document.getElementById('modal-start-btn');
-        const modalRestartBtn = document.getElementById('modal-restart-btn');
-        const modalStopBtn = document.getElementById('modal-stop-btn');
-        const settingsModal = document.getElementById('settings-modal');
-        const apiKeyDisplay = document.getElementById('api-key-display');
-        const statusDot = document.getElementById('status-dot');
-        const statusText = document.getElementById('status-text');
-        const connectionStatus = document.getElementById('connection-status');
-        
+        // グローバル変数（あえて整理しすぎない）
+        var API_BASE_URL = 'http://localhost:4001/api';
+        var API_KEY = '';
+        var AUTO_REFRESH = true;
+        var REFRESH_INTERVAL = 30;
+        var refreshIntervalId = null;
+        var currentServerId = null;
+        var currentPath = '';
+        var consoleInterval = null;
+        var isConnected = false;
+        var operationLogs = [];
+
+        // DOM要素をまとめて取得
+        var serverListEl = document.getElementById('server-list');
+        var dashboardServerListEl = document.getElementById('dashboard-server-list');
+        var consoleOutputEl = document.getElementById('console-output');
+        var consoleInputEl = document.getElementById('console-input');
+        var sendCommandBtn = document.getElementById('send-command');
+        var fileListEl = document.getElementById('file-list');
+        var playerListEl = document.getElementById('player-list');
+        var backupListEl = document.getElementById('backup-list');
+        var jobsListEl = document.getElementById('jobs-list');
+        var alertAreaEl = document.getElementById('alert-area');
+        var serverDetailModal = document.getElementById('server-detail-modal');
+        var modalServerName = document.getElementById('modal-server-name');
+        var modalServerInfo = document.getElementById('modal-server-info');
+        var modalStartBtn = document.getElementById('modal-start-btn');
+        var modalRestartBtn = document.getElementById('modal-restart-btn');
+        var modalStopBtn = document.getElementById('modal-stop-btn');
+        var settingsModal = document.getElementById('settings-modal');
+        var apiKeyDisplay = document.getElementById('api-key-display');
+        var statusDot = document.getElementById('status-dot');
+        var statusText = document.getElementById('status-text');
+        var connectionStatus = document.getElementById('connection-status');
+
         // タブ切り替え
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                // すべてのタブとコンテンツを非アクティブに
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // クリックされたタブと対応するコンテンツをアクティブに
+        document.querySelectorAll('.tab').forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+                document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
                 tab.classList.add('active');
-                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+                document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
                 
-                // タブ固有の初期化
-                if (tab.dataset.tab === 'dashboard') {
-                    loadDashboard();
-                } else if (tab.dataset.tab === 'servers') {
-                    loadServers();
-                } else if (tab.dataset.tab === 'console') {
-                    initConsole();
-                } else if (tab.dataset.tab === 'files') {
-                    initFiles();
-                } else if (tab.dataset.tab === 'players') {
-                    loadPlayers();
-                } else if (tab.dataset.tab === 'backups') {
-                    loadBackups();
-                } else if (tab.dataset.tab === 'jobs') {
-                    loadJobs();
-                } else if (tab.dataset.tab === 'logs') {
-                    loadLogs();
-                }
+                var tabName = tab.dataset.tab;
+                if (tabName === 'dashboard') loadDashboard();
+                else if (tabName === 'servers') loadServers();
+                else if (tabName === 'console') initConsole();
+                else if (tabName === 'files') initFiles();
+                else if (tabName === 'players') loadPlayers();
+                else if (tabName === 'backups') loadBackups();
+                else if (tabName === 'jobs') loadJobs();
+                else if (tabName === 'logs') renderLogs();
             });
         });
-        
-        // ログタブ切り替え
-        document.querySelectorAll('.log-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                // すべてのログタブとコンテンツを非アクティブに
-                document.querySelectorAll('.log-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.log-tab-content').forEach(c => c.classList.remove('active'));
-                
-                // クリックされたログタブと対応するコンテンツをアクティブに
-                tab.classList.add('active');
-                document.getElementById(`log-tab-${tab.dataset.logTab}`).classList.add('active');
-                
-                currentLogTab = tab.dataset.logTab;
-                renderLogs();
-            });
-        });
-        
-        // 設定の読み込み
+
+        // 設定読み込み
         function loadSettings() {
-            const savedSettings = localStorage.getItem('fastserver-settings');
-            if (savedSettings) {
-                const settings = JSON.parse(savedSettings);
-                API_BASE_URL = settings.apiBaseUrl || API_BASE_URL;
-                API_KEY = settings.apiKey || '';
-                AUTO_REFRESH = settings.autoRefresh !== undefined ? settings.autoRefresh : true;
-                REFRESH_INTERVAL = settings.refreshInterval || 30;
-                
-                // 設定フォームに値を設定
-                document.getElementById('api-base-url').value = API_BASE_URL;
-                document.getElementById('api-key-input').value = API_KEY;
-                document.getElementById('save-settings').checked = true;
-                document.getElementById('auto-refresh').checked = AUTO_REFRESH;
-                document.getElementById('refresh-interval').value = REFRESH_INTERVAL;
-                
-                updateApiKeyDisplay();
-                
-                // 接続テスト
-                if (API_KEY) {
-                    testConnection();
+            var saved = localStorage.getItem('fastserver-settings');
+            if (saved) {
+                try {
+                    var settings = JSON.parse(saved);
+                    API_BASE_URL = settings.apiBaseUrl || API_BASE_URL;
+                    API_KEY = settings.apiKey || '';
+                    AUTO_REFRESH = settings.autoRefresh !== undefined ? settings.autoRefresh : true;
+                    REFRESH_INTERVAL = settings.refreshInterval || 30;
+                    
+                    document.getElementById('api-base-url').value = API_BASE_URL;
+                    document.getElementById('api-key-input').value = API_KEY;
+                    document.getElementById('save-settings').checked = true;
+                    document.getElementById('auto-refresh').checked = AUTO_REFRESH;
+                    document.getElementById('refresh-interval').value = REFRESH_INTERVAL;
+                    
+                    updateApiKeyDisplay();
+                    if (API_KEY) testConnection();
+                    setupAutoRefresh();
+                } catch(e) {
+                    console.error('設定の読み込みに失敗', e);
                 }
-                
-                // 自動更新の設定
-                setupAutoRefresh();
             } else {
-                // 設定が保存されていない場合は設定モーダルを表示
-                setTimeout(() => {
-                    settingsModal.style.display = 'flex';
-                }, 500);
+                setTimeout(function() { settingsModal.style.display = 'flex'; }, 500);
             }
-            
-            // 操作ログの読み込み
             loadOperationLogs();
         }
-        
-        // 自動更新の設定
+
         function setupAutoRefresh() {
-            if (refreshIntervalId) {
-                clearInterval(refreshIntervalId);
-            }
-            
+            if (refreshIntervalId) clearInterval(refreshIntervalId);
             if (AUTO_REFRESH && isConnected) {
-                refreshIntervalId = setInterval(() => {
-                    const activeTab = document.querySelector('.tab.active').dataset.tab;
-                    if (activeTab === 'dashboard') {
-                        loadDashboard();
-                    } else if (activeTab === 'servers') {
-                        loadServers();
-                    } else if (activeTab === 'jobs') {
-                        loadJobs();
-                    }
+                refreshIntervalId = setInterval(function() {
+                    var activeTab = document.querySelector('.tab.active').dataset.tab;
+                    if (activeTab === 'dashboard') loadDashboard();
+                    else if (activeTab === 'servers') loadServers();
+                    else if (activeTab === 'jobs') loadJobs();
                 }, REFRESH_INTERVAL * 1000);
             }
         }
-        
-        // 設定の保存
+
         function saveSettings() {
-            const apiBaseUrl = document.getElementById('api-base-url').value;
-            const apiKey = document.getElementById('api-key-input').value;
-            const saveSettings = document.getElementById('save-settings').checked;
-            const autoRefresh = document.getElementById('auto-refresh').checked;
-            const refreshInterval = parseInt(document.getElementById('refresh-interval').value);
+            var apiBaseUrl = document.getElementById('api-base-url').value;
+            var apiKey = document.getElementById('api-key-input').value;
+            var save = document.getElementById('save-settings').checked;
+            var autoRefresh = document.getElementById('auto-refresh').checked;
+            var refreshInterval = parseInt(document.getElementById('refresh-interval').value);
             
             API_BASE_URL = apiBaseUrl;
             API_KEY = apiKey;
             AUTO_REFRESH = autoRefresh;
             REFRESH_INTERVAL = refreshInterval;
             
-            if (saveSettings) {
-                const settings = {
+            if (save) {
+                localStorage.setItem('fastserver-settings', JSON.stringify({
                     apiBaseUrl: API_BASE_URL,
                     apiKey: API_KEY,
                     autoRefresh: AUTO_REFRESH,
                     refreshInterval: REFRESH_INTERVAL
-                };
-                localStorage.setItem('fastserver-settings', JSON.stringify(settings));
+                }));
             } else {
                 localStorage.removeItem('fastserver-settings');
             }
             
             updateApiKeyDisplay();
             settingsModal.style.display = 'none';
-            
-            // 接続テスト
             testConnection();
-            
-            // 自動更新の設定
             setupAutoRefresh();
-            
-            // ログに記録
             addLogEntry('system', 'info', '設定を更新しました');
         }
-        
-        // APIキー表示の更新
+
         function updateApiKeyDisplay() {
             if (API_KEY) {
-                const maskedKey = API_KEY.substring(0, 4) + '•'.repeat(8) + API_KEY.substring(API_KEY.length - 4);
-                apiKeyDisplay.textContent = maskedKey;
-                apiKeyDisplay.title = API_KEY;
+                var masked = API_KEY.substring(0,4) + '•'.repeat(8) + API_KEY.substring(API_KEY.length-4);
+                apiKeyDisplay.textContent = masked;
             } else {
                 apiKeyDisplay.textContent = 'APIキーが設定されていません';
             }
         }
-        
-        // 接続ステータスの更新
-        function updateConnectionStatus(connected, message = '') {
+
+        function updateConnectionStatus(connected, message) {
             isConnected = connected;
-            
             if (connected) {
                 statusDot.classList.remove('disconnected');
                 statusText.textContent = '接続済み';
-                connectionStatus.innerHTML = `<div class="connection-message connection-success">${message || 'FastServer APIに正常に接続されました'}</div>`;
-                
-                // 自動更新の設定
+                connectionStatus.innerHTML = '<div class="connection-message connection-success">' + (message || 'FastServer APIに正常に接続されました') + '</div>';
                 setupAutoRefresh();
             } else {
                 statusDot.classList.add('disconnected');
                 statusText.textContent = '接続なし';
-                connectionStatus.innerHTML = `<div class="connection-message connection-error">${message || 'FastServer APIに接続できません'}</div>`;
-                
-                // 自動更新を停止
-                if (refreshIntervalId) {
-                    clearInterval(refreshIntervalId);
-                }
+                connectionStatus.innerHTML = '<div class="connection-message connection-error">' + (message || 'FastServer APIに接続できません') + '</div>';
+                if (refreshIntervalId) clearInterval(refreshIntervalId);
             }
-            
             connectionStatus.style.display = 'block';
         }
-        
-        // 接続テスト
+
         async function testConnection() {
             try {
-                const data = await apiRequest('/check_alive');
-                updateConnectionStatus(true, `APIサーバーは稼働中です (稼働時間: ${data.uptime})`);
+                var data = await apiRequest('/check_alive');
+                updateConnectionStatus(true, 'APIサーバーは稼働中です (稼働時間: ' + data.uptime + ')');
                 addLogEntry('system', 'success', 'APIサーバーに正常に接続しました');
-            } catch (error) {
-                updateConnectionStatus(false, error.message);
-                addLogEntry('system', 'error', `APIサーバーへの接続に失敗: ${error.message}`);
+            } catch(e) {
+                updateConnectionStatus(false, e.message);
+                addLogEntry('system', 'error', 'APIサーバーへの接続に失敗: ' + e.message);
             }
         }
-        
-        // 操作ログの管理
+
+        // ログ関連
         function loadOperationLogs() {
-            const savedLogs = localStorage.getItem('fastserver-operation-logs');
-            if (savedLogs) {
-                operationLogs = JSON.parse(savedLogs);
+            var saved = localStorage.getItem('fastserver-operation-logs');
+            if (saved) {
+                try { operationLogs = JSON.parse(saved); } catch(e) { operationLogs = []; }
             } else {
                 operationLogs = [];
-                // 初期ログエントリを追加
                 addLogEntry('system', 'info', 'サーバーパネルを起動しました');
             }
             renderLogs();
         }
-        
+
         function saveOperationLogs() {
-            // 最新1000件のみ保存
-            const logsToSave = operationLogs.slice(-1000);
-            localStorage.setItem('fastserver-operation-logs', JSON.stringify(logsToSave));
+            localStorage.setItem('fastserver-operation-logs', JSON.stringify(operationLogs.slice(-1000)));
         }
-        
-        function addLogEntry(category, type, message, serverId = null) {
-            const timestamp = new Date().toISOString();
-            const logEntry = {
-                id: Date.now() + Math.random().toString(36).substr(2, 9),
-                timestamp,
-                category,
-                type,
-                message,
-                serverId
+
+        function addLogEntry(category, type, message, serverId) {
+            var entry = {
+                id: Date.now() + Math.random().toString(36).substr(2,9),
+                timestamp: new Date().toISOString(),
+                category: category,
+                type: type,
+                message: message,
+                serverId: serverId || null
             };
-            
-            operationLogs.push(logEntry);
+            operationLogs.push(entry);
             saveOperationLogs();
-            
-            // ログタブがアクティブな場合のみリアルタイム更新
-            if (document.getElementById('logs-tab').classList.contains('active')) {
-                renderLogs();
-            }
-            
-            // コンソールにも出力（デバッグ用）
-            console.log(`[${timestamp}] ${category.toUpperCase()}.${type.toUpperCase()}: ${message}`);
+            if (document.getElementById('logs-tab').classList.contains('active')) renderLogs();
         }
-        
+
         function renderLogs() {
-            // すべてのログコンテナをクリア
-            document.querySelectorAll('.log-container').forEach(container => {
-                container.innerHTML = '';
-            });
-            
+            var container = document.getElementById('log-container');
+            container.innerHTML = '';
             if (operationLogs.length === 0) {
-                document.querySelectorAll('.log-container').forEach(container => {
-                    container.innerHTML = '<p>ログがありません</p>';
-                });
+                container.innerHTML = '<p>ログがありません</p>';
                 return;
             }
-            
-            // 新しい順に表示
-            const reversedLogs = [...operationLogs].reverse();
-            
-            // 各カテゴリのログをフィルタリングして表示
-            const categories = ['all', 'server', 'file', 'command', 'system'];
-            
-            categories.forEach(category => {
-                const container = document.getElementById(`log-container-${category}`);
-                let filteredLogs = reversedLogs;
-                
-                if (category !== 'all') {
-                    filteredLogs = reversedLogs.filter(log => log.category === category);
-                }
-                
-                if (filteredLogs.length === 0) {
-                    container.innerHTML = '<p>このカテゴリのログはありません</p>';
-                    return;
-                }
-                
-                filteredLogs.forEach(log => {
-                    const logEntry = document.createElement('div');
-                    logEntry.className = `log-entry log-type-${log.type}`;
-                    
-                    const date = new Date(log.timestamp);
-                    const timeString = date.toLocaleString('ja-JP');
-                    
-                    let serverInfo = '';
-                    if (log.serverId) {
-                        serverInfo = `<span class="log-server">${log.serverId}</span>`;
-                    }
-                    
-                    logEntry.innerHTML = `
-                        <div class="log-timestamp">${timeString}</div>
-                        <div class="log-message">${serverInfo}${log.message}</div>
-                    `;
-                    
-                    container.appendChild(logEntry);
-                });
-            });
-            
-            // 最新のログにスクロール
-            document.querySelectorAll('.log-container').forEach(container => {
-                container.scrollTop = 0;
+            var reversed = operationLogs.slice().reverse();
+            reversed.forEach(function(log) {
+                var div = document.createElement('div');
+                div.className = 'log-entry log-type-' + log.type;
+                var date = new Date(log.timestamp);
+                div.innerHTML = '<div class="log-timestamp">' + date.toLocaleString('ja-JP') + '</div>' +
+                               '<div class="log-message">' + (log.serverId ? '<span style="background:#ecf0f1;padding:2px 6px;border-radius:3px;margin-right:5px;">' + log.serverId + '</span>' : '') + 
+                               log.message + '</div>';
+                container.appendChild(div);
             });
         }
-        
+
         function clearLogs() {
-            if (confirm('すべての操作ログを削除しますか？この操作は元に戻せません。')) {
+            if (confirm('すべての操作ログを削除しますか？')) {
                 operationLogs = [];
                 saveOperationLogs();
                 renderLogs();
                 addLogEntry('system', 'info', '操作ログをクリアしました');
             }
         }
-        
+
         function exportLogs() {
-            const dataStr = JSON.stringify(operationLogs, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `fastserver-logs-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
+            var dataStr = JSON.stringify(operationLogs, null, 2);
+            var blob = new Blob([dataStr], {type: 'application/json'});
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'fastserver-logs-' + new Date().toISOString().split('T')[0] + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
             addLogEntry('system', 'info', '操作ログをエクスポートしました');
         }
-        
-        // ダッシュボードの読み込み
-        async function loadDashboard() {
-            if (!isConnected) return;
-            
-            try {
-                const data = await apiRequest('/servers');
-                updateDashboardStats(data.servers);
-                renderDashboardServers(data.servers);
-                addLogEntry('system', 'info', 'ダッシュボードを更新しました');
-            } catch (error) {
-                // エラーはapiRequest内で処理済み
-            }
-        }
-        
-        // ダッシュボード統計の更新
-        function updateDashboardStats(servers) {
-            const totalServers = servers.length;
-            const runningServers = servers.filter(s => s.status === 'RUNNING').length;
-            
-            document.getElementById('total-servers').textContent = totalServers;
-            document.getElementById('running-servers').textContent = runningServers;
-            
-            // プレイヤー数とジョブ数は仮の値（実際のAPIがあれば実装）
-            document.getElementById('total-players').textContent = '0';
-            document.getElementById('active-jobs').textContent = '0';
-        }
-        
-        // ダッシュボードサーバー一覧の描画
-        function renderDashboardServers(servers) {
-            dashboardServerListEl.innerHTML = '';
-            
-            if (servers.length === 0) {
-                dashboardServerListEl.innerHTML = '<p>サーバーが見つかりません</p>';
-                return;
-            }
-            
-            servers.forEach(server => {
-                const serverCard = document.createElement('div');
-                serverCard.className = 'server-card card';
-                
-                const statusClass = `server-status status-${server.status.toLowerCase()}`;
-                
-                serverCard.innerHTML = `
-                    <div class="card-body">
-                        <div class="server-info">
-                            <div class="server-name">${server.name}</div>
-                            <div class="server-detail">
-                                <span>ステータス:</span>
-                                <span class="${statusClass}">${server.status}</span>
-                            </div>
-                            <div class="server-detail">
-                                <span>バージョン:</span>
-                                <span>${server.version}</span>
-                            </div>
-                        </div>
-                        <div class="server-actions">
-                            <button class="btn btn-primary btn-sm" data-server-id="${server.id}" data-action="detail">詳細</button>
-                            <button class="btn btn-success btn-sm" data-server-id="${server.id}" data-action="start" ${server.status === 'RUNNING' ? 'disabled' : ''}>起動</button>
-                            <button class="btn btn-warning btn-sm" data-server-id="${server.id}" data-action="restart" ${server.status !== 'RUNNING' ? 'disabled' : ''}>再起動</button>
-                            <button class="btn btn-danger btn-sm" data-server-id="${server.id}" data-action="stop" ${server.status !== 'RUNNING' ? 'disabled' : ''}>停止</button>
-                        </div>
-                    </div>
-                `;
-                
-                dashboardServerListEl.appendChild(serverCard);
-            });
-            
-            // サーバーアクションボタンのイベントリスナー
-            dashboardServerListEl.querySelectorAll('[data-action]').forEach(button => {
-                button.addEventListener('click', handleServerAction);
-            });
-        }
-        
-        // APIリクエスト関数
-        async function apiRequest(endpoint, options = {}) {
-            if (!API_KEY) {
-                throw new Error('APIキーが設定されていません');
-            }
-            
-            const url = `${API_BASE_URL}${endpoint}`;
-            const headers = {
-                'Authorization': `Bearer ${API_KEY}`,
+
+        // APIリクエスト
+        async function apiRequest(endpoint, options) {
+            options = options || {};
+            if (!API_KEY) throw new Error('APIキーが設定されていません');
+            var url = API_BASE_URL + endpoint;
+            var headers = {
+                'Authorization': 'Bearer ' + API_KEY,
                 'Content-Type': 'application/json',
-                ...options.headers
+                ...(options.headers || {})
             };
-            
             try {
-                const response = await fetch(url, { ...options, headers });
-                
+                var response = await fetch(url, { ...options, headers: headers });
                 if (!response.ok) {
-                    if (response.status === 401) {
-                        throw new Error('認証に失敗しました。APIキーを確認してください');
-                    } else if (response.status === 403) {
-                        throw new Error('APIが無効化されています');
-                    } else if (response.status === 404) {
-                        throw new Error('APIエンドポイントが見つかりません');
-                    } else {
-                        throw new Error(`APIエラー: ${response.status}`);
-                    }
+                    if (response.status === 401) throw new Error('認証に失敗しました。APIキーを確認してください');
+                    else if (response.status === 403) throw new Error('APIが無効化されています');
+                    else if (response.status === 404) throw new Error('APIエンドポイントが見つかりません');
+                    else throw new Error('APIエラー: ' + response.status);
                 }
-                
                 return await response.json();
-            } catch (error) {
-                console.error('API request failed:', error);
-                showAlert('APIリクエストに失敗しました: ' + error.message, 'error');
-                throw error;
+            } catch(e) {
+                console.error('API request failed:', e);
+                showAlert('APIリクエストに失敗しました: ' + e.message, 'error');
+                throw e;
             }
         }
-        
-        // サーバー一覧の読み込み
+
+        // サーバー一覧
         async function loadServers() {
             if (!isConnected) return;
-            
             try {
-                const data = await apiRequest('/servers');
+                var data = await apiRequest('/servers');
                 renderServers(data.servers);
                 updateServerSelects(data.servers);
                 addLogEntry('server', 'info', 'サーバー一覧を取得しました');
-            } catch (error) {
-                // エラーはapiRequest内で処理済み
-            }
+            } catch(e) {}
         }
-        
-        // サーバー一覧の描画
+
+        async function loadDashboard() {
+            if (!isConnected) return;
+            try {
+                var data = await apiRequest('/servers');
+                renderDashboardServers(data.servers);
+                addLogEntry('system', 'info', 'ダッシュボードを更新しました');
+            } catch(e) {}
+        }
+
         function renderServers(servers) {
             serverListEl.innerHTML = '';
-            
             if (servers.length === 0) {
                 serverListEl.innerHTML = '<p>サーバーが見つかりません</p>';
                 return;
             }
-            
-            servers.forEach(server => {
-                const serverCard = document.createElement('div');
-                serverCard.className = 'server-card card';
-                
-                const statusClass = `server-status status-${server.status.toLowerCase()}`;
-                
-                serverCard.innerHTML = `
-                    <div class="card-body">
-                        <div class="server-info">
-                            <div class="server-name">${server.name}</div>
-                            <div class="server-detail">
-                                <span>ソフトウェア:</span>
-                                <span>${server.software}</span>
-                            </div>
-                            <div class="server-detail">
-                                <span>バージョン:</span>
-                                <span>${server.version}</span>
-                            </div>
-                            <div class="server-detail">
-                                <span>ステータス:</span>
-                                <span class="${statusClass}">${server.status}</span>
-                            </div>
-                        </div>
-                        <div class="server-actions">
-                            <button class="btn btn-primary btn-sm" data-server-id="${server.id}" data-action="detail">詳細</button>
-                            <button class="btn btn-success btn-sm" data-server-id="${server.id}" data-action="start" ${server.status === 'RUNNING' ? 'disabled' : ''}>起動</button>
-                            <button class="btn btn-warning btn-sm" data-server-id="${server.id}" data-action="restart" ${server.status !== 'RUNNING' ? 'disabled' : ''}>再起動</button>
-                            <button class="btn btn-danger btn-sm" data-server-id="${server.id}" data-action="stop" ${server.status !== 'RUNNING' ? 'disabled' : ''}>停止</button>
-                        </div>
-                    </div>
-                `;
-                
-                serverListEl.appendChild(serverCard);
-            });
-            
-            // サーバーアクションボタンのイベントリスナー
-            document.querySelectorAll('[data-action]').forEach(button => {
-                button.addEventListener('click', handleServerAction);
+            servers.forEach(function(server) {
+                var card = createServerCard(server, false);
+                serverListEl.appendChild(card);
             });
         }
-        
-        // サーバーセレクトボックスの更新
+
+        function renderDashboardServers(servers) {
+            dashboardServerListEl.innerHTML = '';
+            if (servers.length === 0) {
+                dashboardServerListEl.innerHTML = '<p>サーバーが見つかりません</p>';
+                return;
+            }
+            servers.forEach(function(server) {
+                var card = createServerCard(server, true);
+                dashboardServerListEl.appendChild(card);
+            });
+        }
+
+        function createServerCard(server, isDashboard) {
+            var card = document.createElement('div');
+            card.className = 'server-card card';
+            var statusClass = 'server-status status-' + server.status.toLowerCase();
+            var actionButtons = '';
+            if (!isDashboard) {
+                actionButtons = '<button class="btn btn-primary btn-sm" data-server-id="' + server.id + '" data-action="detail">詳細</button>';
+            }
+            actionButtons += '<button class="btn btn-success btn-sm" data-server-id="' + server.id + '" data-action="start"' + (server.status === 'RUNNING' ? ' disabled' : '') + '>起動</button>' +
+                            '<button class="btn btn-warning btn-sm" data-server-id="' + server.id + '" data-action="restart"' + (server.status !== 'RUNNING' ? ' disabled' : '') + '>再起動</button>' +
+                            '<button class="btn btn-danger btn-sm" data-server-id="' + server.id + '" data-action="stop"' + (server.status !== 'RUNNING' ? ' disabled' : '') + '>停止</button>';
+            
+            card.innerHTML = '<div class="card-body">' +
+                                '<div class="server-info">' +
+                                    '<div class="server-name">' + server.name + '</div>' +
+                                    '<div class="server-detail"><span>ソフトウェア:</span><span>' + server.software + '</span></div>' +
+                                    '<div class="server-detail"><span>バージョン:</span><span>' + server.version + '</span></div>' +
+                                    '<div class="server-detail"><span>ステータス:</span><span class="' + statusClass + '">' + server.status + '</span></div>' +
+                                '</div>' +
+                                '<div class="server-actions">' + actionButtons + '</div>' +
+                            '</div>';
+            
+            card.querySelectorAll('button[data-action]').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    handleServerAction(btn.dataset.action, btn.dataset.serverId);
+                });
+            });
+            return card;
+        }
+
         function updateServerSelects(servers) {
-            const consoleSelect = document.getElementById('console-server-select');
-            const filesSelect = document.getElementById('files-server-select');
-            const playersSelect = document.getElementById('players-server-select');
-            
-            // 既存のオプションをクリア（最初のオプションを除く）
-            while (consoleSelect.children.length > 1) {
-                consoleSelect.removeChild(consoleSelect.lastChild);
-            }
-            while (filesSelect.children.length > 1) {
-                filesSelect.removeChild(filesSelect.lastChild);
-            }
-            while (playersSelect.children.length > 1) {
-                playersSelect.removeChild(playersSelect.lastChild);
-            }
-            
-            // サーバーオプションを追加
-            servers.forEach(server => {
-                const option = document.createElement('option');
-                option.value = server.id;
-                option.textContent = server.name;
-                
-                consoleSelect.appendChild(option.cloneNode(true));
-                filesSelect.appendChild(option.cloneNode(true));
-                playersSelect.appendChild(option);
+            var consoleSelect = document.getElementById('console-server-select');
+            var filesSelect = document.getElementById('files-server-select');
+            var playersSelect = document.getElementById('players-server-select');
+            [consoleSelect, filesSelect, playersSelect].forEach(function(select) {
+                var current = select.value;
+                select.innerHTML = '<option value="">サーバーを選択...</option>';
+                servers.forEach(function(server) {
+                    var opt = document.createElement('option');
+                    opt.value = server.id;
+                    opt.textContent = server.name;
+                    select.appendChild(opt);
+                });
+                if (current && servers.find(function(s){ return s.id === current; })) select.value = current;
             });
         }
-        
-        // サーバーアクションの処理
-        async function handleServerAction(event) {
-            const serverId = event.target.dataset.serverId;
-            const action = event.target.dataset.action;
-            
+
+        async function handleServerAction(action, serverId) {
             if (action === 'detail') {
                 showServerDetail(serverId);
                 return;
             }
-            
+            if (action === 'stop' && !confirm('サーバーを停止しますか？')) return;
+            if (action === 'restart' && !confirm('サーバーを再起動しますか？')) return;
             try {
-                let endpoint;
-                let successMessage;
-                let logMessage;
-                
-                switch (action) {
-                    case 'start':
-                        endpoint = `/servers/${serverId}/start`;
-                        successMessage = 'サーバーを起動しました';
-                        logMessage = `サーバー "${serverId}" を起動しました`;
-                        break;
-                    case 'stop':
-                        endpoint = `/servers/${serverId}/stop`;
-                        successMessage = 'サーバーを停止しました';
-                        logMessage = `サーバー "${serverId}" を停止しました`;
-                        break;
-                    case 'restart':
-                        endpoint = `/servers/${serverId}/restart`;
-                        successMessage = 'サーバーを再起動しました';
-                        logMessage = `サーバー "${serverId}" を再起動しました`;
-                        break;
-                }
-                
-                await apiRequest(endpoint, { method: 'POST' });
-                showAlert(successMessage, 'success');
-                addLogEntry('server', 'success', logMessage, serverId);
-                
-                // サーバーリストを更新
-                setTimeout(() => {
+                await apiRequest('/servers/' + serverId + '/' + action, { method: 'POST' });
+                showAlert('サーバーを' + action + 'しました', 'success');
+                addLogEntry('server', 'success', 'サーバー ' + serverId + ' を' + action + 'しました', serverId);
+                setTimeout(function() {
                     loadServers();
                     loadDashboard();
                 }, 1000);
-            } catch (error) {
-                addLogEntry('server', 'error', `サーバー操作に失敗: ${error.message}`, serverId);
-                // エラーはapiRequest内で処理済み
-            }
+            } catch(e) {}
         }
-        
-        // サーバー詳細の表示
+
         async function showServerDetail(serverId) {
             try {
-                const data = await apiRequest(`/servers/${serverId}`);
-                
+                var data = await apiRequest('/servers/' + serverId);
                 modalServerName.textContent = data.servername;
-                
-                const statusClass = `server-status status-${data.status.toLowerCase()}`;
-                
-                modalServerInfo.innerHTML = `
-                    <div class="server-detail">
-                        <span>ID:</span>
-                        <span>${data.id}</span>
-                    </div>
-                    <div class="server-detail">
-                        <span>ソフトウェア:</span>
-                        <span>${data.software}</span>
-                    </div>
-                    <div class="server-detail">
-                        <span>バージョン:</span>
-                        <span>${data.version}</span>
-                    </div>
-                    <div class="server-detail">
-                        <span>ステータス:</span>
-                        <span class="${statusClass}">${data.status}</span>
-                    </div>
-                    <div class="server-detail">
-                        <span>パス:</span>
-                        <span>${data.serverpath}</span>
-                    </div>
-                `;
-                
-                // ボタンの状態を設定
+                var statusClass = 'server-status status-' + data.status.toLowerCase();
+                modalServerInfo.innerHTML = '<div class="server-detail"><span>ID:</span><span>' + data.id + '</span></div>' +
+                    '<div class="server-detail"><span>ソフトウェア:</span><span>' + data.software + '</span></div>' +
+                    '<div class="server-detail"><span>バージョン:</span><span>' + data.version + '</span></div>' +
+                    '<div class="server-detail"><span>ステータス:</span><span class="' + statusClass + '">' + data.status + '</span></div>' +
+                    '<div class="server-detail"><span>パス:</span><span>' + data.serverpath + '</span></div>';
                 modalStartBtn.disabled = data.status === 'RUNNING';
                 modalRestartBtn.disabled = data.status !== 'RUNNING';
                 modalStopBtn.disabled = data.status !== 'RUNNING';
-                
-                // ボタンのイベントリスナーを設定
-                modalStartBtn.onclick = () => handleServerAction({ target: { dataset: { serverId: serverId, action: 'start' } } });
-                modalRestartBtn.onclick = () => handleServerAction({ target: { dataset: { serverId: serverId, action: 'restart' } } });
-                modalStopBtn.onclick = () => handleServerAction({ target: { dataset: { serverId: serverId, action: 'stop' } } });
-                
+                modalStartBtn.onclick = function() { handleServerAction('start', serverId); };
+                modalRestartBtn.onclick = function() { handleServerAction('restart', serverId); };
+                modalStopBtn.onclick = function() { handleServerAction('stop', serverId); };
                 serverDetailModal.style.display = 'flex';
-                
-                addLogEntry('server', 'info', `サーバー "${serverId}" の詳細を表示`, serverId);
-            } catch (error) {
-                // エラーはapiRequest内で処理済み
-            }
+                addLogEntry('server', 'info', 'サーバー ' + serverId + ' の詳細を表示', serverId);
+            } catch(e) {}
         }
-        
-        // コンソールの初期化
+
+        // コンソール
         function initConsole() {
-            const consoleServerSelect = document.getElementById('console-server-select');
-            
-            consoleServerSelect.addEventListener('change', () => {
-                const serverId = consoleServerSelect.value;
-                
-                // 既存のコンソール監視を停止
-                if (consoleInterval) {
-                    clearInterval(consoleInterval);
-                    consoleInterval = null;
-                }
-                
+            var select = document.getElementById('console-server-select');
+            select.addEventListener('change', function() {
+                var serverId = select.value;
+                if (consoleInterval) clearInterval(consoleInterval);
                 if (serverId) {
                     currentServerId = serverId;
                     consoleInputEl.disabled = false;
                     sendCommandBtn.disabled = false;
-                    
-                    // コンソール出力を読み込み
                     loadConsoleOutput(serverId);
-                    
-                    // 定期的にコンソール出力を更新
-                    consoleInterval = setInterval(() => {
-                        loadConsoleOutput(serverId);
-                    }, 3000);
-                    
-                    addLogEntry('system', 'info', `コンソールをサーバー "${serverId}" に接続`, serverId);
+                    consoleInterval = setInterval(function() { loadConsoleOutput(serverId); }, 3000);
+                    addLogEntry('system', 'info', 'コンソールをサーバー ' + serverId + ' に接続', serverId);
                 } else {
                     currentServerId = null;
                     consoleInputEl.disabled = true;
@@ -1905,461 +708,262 @@
                     consoleOutputEl.innerHTML = '<div class="console-line">サーバーを選択するとコンソール出力が表示されます</div>';
                 }
             });
-            
-            // コマンド送信
             sendCommandBtn.addEventListener('click', sendCommand);
-            consoleInputEl.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    sendCommand();
-                }
+            consoleInputEl.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendCommand();
             });
         }
-        
-        // コンソール出力の読み込み
+
         async function loadConsoleOutput(serverId) {
             try {
-                const data = await apiRequest(`/servers/${serverId}/console/tail?lines=100`);
-                
+                var data = await apiRequest('/servers/' + serverId + '/console/tail?lines=100');
                 consoleOutputEl.innerHTML = '';
-                data.log.forEach(line => {
-                    const lineEl = document.createElement('div');
-                    lineEl.className = 'console-line';
-                    lineEl.textContent = line;
-                    consoleOutputEl.appendChild(lineEl);
+                data.log.forEach(function(line) {
+                    var div = document.createElement('div');
+                    div.className = 'console-line';
+                    div.textContent = line;
+                    consoleOutputEl.appendChild(div);
                 });
-                
-                // 最新の行にスクロール
                 consoleOutputEl.scrollTop = consoleOutputEl.scrollHeight;
-            } catch (error) {
-                // エラーはapiRequest内で処理済み
-            }
+            } catch(e) {}
         }
-        
-        // コマンド送信
+
         async function sendCommand() {
-            const command = consoleInputEl.value.trim();
-            
-            if (!command || !currentServerId) {
-                return;
-            }
-            
+            var command = consoleInputEl.value.trim();
+            if (!command || !currentServerId) return;
             try {
-                await apiRequest(`/servers/${currentServerId}/command`, {
+                await apiRequest('/servers/' + currentServerId + '/command', {
                     method: 'POST',
-                    body: JSON.stringify({ command })
+                    body: JSON.stringify({ command: command })
                 });
-                
                 consoleInputEl.value = '';
                 showAlert('コマンドを送信しました', 'success');
-                addLogEntry('command', 'info', `コマンドを実行: ${command}`, currentServerId);
-                
-                // コンソール出力を更新
-                setTimeout(() => loadConsoleOutput(currentServerId), 500);
-            } catch (error) {
-                addLogEntry('command', 'error', `コマンド実行に失敗: ${error.message}`, currentServerId);
-                // エラーはapiRequest内で処理済み
-            }
+                addLogEntry('command', 'info', 'コマンド実行: ' + command, currentServerId);
+                setTimeout(function() { loadConsoleOutput(currentServerId); }, 500);
+            } catch(e) {}
         }
-        
-        // ファイル管理の初期化
+
+        // ファイル管理
         function initFiles() {
-            const filesServerSelect = document.getElementById('files-server-select');
-            const refreshFilesBtn = document.getElementById('refresh-files');
-            
-            filesServerSelect.addEventListener('change', () => {
-                const serverId = filesServerSelect.value;
-                
+            var select = document.getElementById('files-server-select');
+            select.addEventListener('change', function() {
+                var serverId = select.value;
                 if (serverId) {
                     currentServerId = serverId;
                     currentPath = '';
                     loadFiles(serverId, '');
-                    addLogEntry('file', 'info', `ファイルブラウザをサーバー "${serverId}" に接続`, serverId);
+                    addLogEntry('file', 'info', 'ファイルブラウザをサーバー ' + serverId + ' に接続', serverId);
                 } else {
                     currentServerId = null;
                     currentPath = '';
                     fileListEl.innerHTML = '';
                 }
             });
-            
-            refreshFilesBtn.addEventListener('click', () => {
-                if (currentServerId) {
-                    loadFiles(currentServerId, currentPath);
-                    addLogEntry('file', 'info', `ファイル一覧を更新: ${currentPath || '/'}`, currentServerId);
-                }
+            document.getElementById('refresh-files').addEventListener('click', function() {
+                if (currentServerId) loadFiles(currentServerId, currentPath);
             });
         }
-        
-        // ファイル一覧の読み込み
+
         async function loadFiles(serverId, path) {
             try {
-                const query = path ? `?path=${encodeURIComponent(path)}` : '';
-                const data = await apiRequest(`/servers/${serverId}/files/list${query}`);
-                
+                var query = path ? '?path=' + encodeURIComponent(path) : '';
+                var data = await apiRequest('/servers/' + serverId + '/files/list' + query);
                 renderFiles(data.items, data.path);
-                addLogEntry('file', 'info', `ディレクトリを表示: ${path || '/'}`, serverId);
-            } catch (error) {
-                addLogEntry('file', 'error', `ファイル一覧の取得に失敗: ${error.message}`, serverId);
-                // エラーはapiRequest内で処理済み
-            }
+                addLogEntry('file', 'info', 'ディレクトリを表示: ' + (path || '/'), serverId);
+            } catch(e) {}
         }
-        
-        // ファイル一覧の描画
+
         function renderFiles(items, path) {
             fileListEl.innerHTML = '';
-            
-            // 親ディレクトリへのリンク（ルートでない場合）
             if (path) {
-                const parentItem = document.createElement('div');
-                parentItem.className = 'file-item';
-                parentItem.innerHTML = `
-                    <div class="file-icon">📁</div>
-                    <div class="file-name">..</div>
-                    <div class="file-size">親ディレクトリ</div>
-                `;
-                
-                parentItem.addEventListener('click', () => {
-                    const parentPath = path.split('/').slice(0, -1).join('/');
+                var parent = document.createElement('div');
+                parent.className = 'file-item';
+                parent.innerHTML = '<div class="file-icon">📁</div><div class="file-name">..</div><div class="file-size">親ディレクトリ</div>';
+                parent.addEventListener('click', function() {
+                    var parentPath = path.split('/').slice(0, -1).join('/');
                     loadFiles(currentServerId, parentPath);
                 });
-                
-                fileListEl.appendChild(parentItem);
+                fileListEl.appendChild(parent);
             }
-            
-            items.forEach(item => {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                
-                const icon = item.type === 'directory' ? '📁' : '📄';
-                
-                fileItem.innerHTML = `
-                    <div class="file-icon">${icon}</div>
-                    <div class="file-name">${item.name}</div>
-                    <div class="file-size">${formatFileSize(item.size)}</div>
-                `;
-                
-                fileItem.addEventListener('click', () => {
+            items.forEach(function(item) {
+                var div = document.createElement('div');
+                div.className = 'file-item';
+                var icon = item.type === 'directory' ? '📁' : '📄';
+                div.innerHTML = '<div class="file-icon">' + icon + '</div><div class="file-name">' + item.name + '</div><div class="file-size">' + formatFileSize(item.size) + '</div>';
+                div.addEventListener('click', function() {
                     if (item.type === 'directory') {
-                        const newPath = path ? `${path}/${item.name}` : item.name;
+                        var newPath = path ? path + '/' + item.name : item.name;
                         loadFiles(currentServerId, newPath);
                     } else {
-                        // ファイルの場合はダウンロード
-                        downloadFile(currentServerId, path ? `${path}/${item.name}` : item.name);
-                        addLogEntry('file', 'info', `ファイルをダウンロード: ${item.name}`, currentServerId);
+                        downloadFile(currentServerId, path ? path + '/' + item.name : item.name);
+                        addLogEntry('file', 'info', 'ファイルをダウンロード: ' + item.name, currentServerId);
                     }
                 });
-                
-                fileListEl.appendChild(fileItem);
+                fileListEl.appendChild(div);
             });
         }
-        
-        // ファイルダウンロード
+
         function downloadFile(serverId, filePath) {
-            const url = `${API_BASE_URL}/servers/${serverId}/files/download?path=${encodeURIComponent(filePath)}`;
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', '');
-            link.style.display = 'none';
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            var url = API_BASE_URL + '/servers/' + serverId + '/files/download?path=' + encodeURIComponent(filePath);
+            var a = document.createElement('a');
+            a.href = url;
+            a.setAttribute('download', '');
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
-        
-        // ファイルサイズのフォーマット
+
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 B';
-            
-            const k = 1024;
-            const sizes = ['B', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            
+            var k = 1024;
+            var sizes = ['B', 'KB', 'MB', 'GB'];
+            var i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
-        
-        // プレイヤー管理の読み込み
+
+        // プレイヤー
         async function loadPlayers() {
-            const playersServerSelect = document.getElementById('players-server-select');
-            const serverId = playersServerSelect.value;
-            
+            var select = document.getElementById('players-server-select');
+            var serverId = select.value;
             if (!serverId) {
                 playerListEl.innerHTML = '<p>サーバーを選択してください</p>';
                 return;
             }
-            
             try {
-                // 仮のプレイヤーデータ（実際のAPIがあれば実装）
-                const players = [
-                    { name: 'Player1', uuid: '12345', online: true },
-                    { name: 'Player2', uuid: '67890', online: false },
-                    { name: 'Player3', uuid: 'abcde', online: true }
-                ];
-                
-                renderPlayers(players);
-                addLogEntry('system', 'info', `プレイヤーリストを取得: ${serverId}`, serverId);
-            } catch (error) {
-                addLogEntry('system', 'error', `プレイヤーリストの取得に失敗: ${error.message}`, serverId);
+                // 実際のAPIが実装されたら置き換え
+                var players = [];
+                if (players.length === 0) {
+                    playerListEl.innerHTML = '<p>オンラインプレイヤーはいません</p>';
+                } else {
+                    playerListEl.innerHTML = '';
+                    players.forEach(function(player) {
+                        var div = document.createElement('div');
+                        div.className = 'card';
+                        div.innerHTML = '<div class="card-body" style="text-align:center;">' +
+                                        '<div style="font-size:2rem;">👤</div>' +
+                                        '<div style="font-weight:600;">' + player.name + '</div>' +
+                                        '<div style="font-size:0.85rem;color:var(--success);">オンライン</div>' +
+                                        '</div>';
+                        playerListEl.appendChild(div);
+                    });
+                }
+            } catch(e) {
+                playerListEl.innerHTML = '<p>プレイヤー情報の取得に失敗しました</p>';
             }
         }
-        
-        // プレイヤー一覧の描画
-        function renderPlayers(players) {
-            playerListEl.innerHTML = '';
-            
-            if (players.length === 0) {
-                playerListEl.innerHTML = '<p>プレイヤーが見つかりません</p>';
-                return;
-            }
-            
-            players.forEach(player => {
-                const playerCard = document.createElement('div');
-                playerCard.className = 'player-card';
-                
-                const status = player.online ? 'オンライン' : 'オフライン';
-                const statusClass = player.online ? 'status-running' : 'status-stopped';
-                
-                playerCard.innerHTML = `
-                    <div class="player-name">${player.name}</div>
-                    <div class="player-info">
-                        <span class="${statusClass}">${status}</span>
-                    </div>
-                `;
-                
-                playerListEl.appendChild(playerCard);
-            });
-        }
-        
-        // バックアップ管理の読み込み
+
+        // バックアップ
         async function loadBackups() {
             try {
-                // 仮のバックアップデータ（実際のAPIがあれば実装）
-                const backups = [
-                    { name: 'backup-2023-11-01.zip', size: 1024000, date: '2023-11-01 12:00:00' },
-                    { name: 'backup-2023-10-28.zip', size: 980000, date: '2023-10-28 12:00:00' },
-                    { name: 'backup-2023-10-25.zip', size: 950000, date: '2023-10-25 12:00:00' }
-                ];
-                
-                renderBackups(backups);
-                addLogEntry('system', 'info', 'バックアップリストを取得しました');
-            } catch (error) {
-                addLogEntry('system', 'error', `バックアップリストの取得に失敗: ${error.message}`);
+                // 実際のAPIが実装されたら置き換え
+                var backups = [];
+                if (backups.length === 0) {
+                    backupListEl.innerHTML = '<p>バックアップがありません</p>';
+                } else {
+                    backupListEl.innerHTML = '';
+                    backups.forEach(function(backup) {
+                        var div = document.createElement('div');
+                        div.className = 'card';
+                        div.innerHTML = '<div class="card-body">' +
+                                        '<div style="font-weight:600;">' + backup.name + '</div>' +
+                                        '<div style="font-size:0.85rem;color:var(--gray);">サイズ: ' + formatFileSize(backup.size) + '</div>' +
+                                        '<div style="font-size:0.85rem;color:var(--gray);">作成日: ' + backup.date + '</div>' +
+                                        '</div>';
+                        backupListEl.appendChild(div);
+                    });
+                }
+            } catch(e) {
+                backupListEl.innerHTML = '<p>バックアップ情報の取得に失敗しました</p>';
             }
         }
-        
-        // バックアップ一覧の描画
-        function renderBackups(backups) {
-            backupListEl.innerHTML = '';
-            
-            if (backups.length === 0) {
-                backupListEl.innerHTML = '<p>バックアップが見つかりません</p>';
-                return;
-            }
-            
-            backups.forEach(backup => {
-                const backupCard = document.createElement('div');
-                backupCard.className = 'backup-card';
-                
-                backupCard.innerHTML = `
-                    <div class="backup-name">${backup.name}</div>
-                    <div class="backup-info">サイズ: ${formatFileSize(backup.size)}</div>
-                    <div class="backup-info">作成日: ${backup.date}</div>
-                    <div class="server-actions">
-                        <button class="btn btn-primary btn-sm" data-backup="${backup.name}">復元</button>
-                        <button class="btn btn-danger btn-sm" data-backup="${backup.name}">削除</button>
-                    </div>
-                `;
-                
-                backupListEl.appendChild(backupCard);
-            });
+
+        async function createBackup() {
+            showAlert('バックアップ作成を開始しました', 'success');
+            addLogEntry('system', 'info', 'バックアップ作成を開始');
         }
-        
-        // ジョブ一覧の読み込み
+
+        // ジョブ
         async function loadJobs() {
             try {
-                const data = await apiRequest('/jobs');
-                renderJobs(data.jobs);
-                addLogEntry('system', 'info', 'ジョブ一覧を取得しました');
-            } catch (error) {
-                // エラーはapiRequest内で処理済み
+                var data = await apiRequest('/jobs');
+                var jobs = data.jobs || [];
+                if (jobs.length === 0) {
+                    jobsListEl.innerHTML = '<p>実行中のジョブはありません</p>';
+                } else {
+                    jobsListEl.innerHTML = '';
+                    jobs.forEach(function(job) {
+                        var div = document.createElement('div');
+                        div.className = 'card';
+                        var statusClass = 'server-status status-' + job.status.toLowerCase();
+                        div.innerHTML = '<div class="card-body">' +
+                                        '<div style="font-weight:600;">' + job.type.toUpperCase() + ' ジョブ</div>' +
+                                        '<div class="server-detail"><span>ステータス:</span><span class="' + statusClass + '">' + job.status + '</span></div>' +
+                                        '<div class="server-detail"><span>進捗:</span><span>' + (job.progress || 0) + '%</span></div>' +
+                                        (job.processed_bytes ? '<div class="server-detail"><span>処理済み:</span><span>' + formatFileSize(job.processed_bytes) + ' / ' + formatFileSize(job.total_bytes) + '</span></div>' : '') +
+                                        '<button class="btn btn-danger btn-sm" data-job-id="' + job.id + '">キャンセル</button>' +
+                                        '</div>';
+                        var cancelBtn = div.querySelector('button[data-job-id]');
+                        cancelBtn.addEventListener('click', async function() {
+                            try {
+                                await apiRequest('/jobs/' + job.id + '/cancel', { method: 'POST' });
+                                showAlert('ジョブをキャンセルしました', 'success');
+                                addLogEntry('system', 'warning', 'ジョブをキャンセル: ' + job.id);
+                                setTimeout(loadJobs, 1000);
+                            } catch(e) {}
+                        });
+                        jobsListEl.appendChild(div);
+                    });
+                }
+            } catch(e) {
+                jobsListEl.innerHTML = '<p>ジョブ情報の取得に失敗しました</p>';
             }
         }
-        
-        // ジョブ一覧の描画
-        function renderJobs(jobs) {
-            jobsListEl.innerHTML = '';
-            
-            if (jobs.length === 0) {
-                jobsListEl.innerHTML = '<p>実行中のジョブはありません</p>';
-                return;
-            }
-            
-            jobs.forEach(job => {
-                const jobCard = document.createElement('div');
-                jobCard.className = 'card';
-                
-                const statusClass = `server-status status-${job.status.toLowerCase()}`;
-                
-                jobCard.innerHTML = `
-                    <div class="card-body">
-                        <div class="server-info">
-                            <div class="server-name">${job.type.toUpperCase()} ジョブ</div>
-                            <div class="server-detail">
-                                <span>ステータス:</span>
-                                <span class="${statusClass}">${job.status}</span>
-                            </div>
-                            <div class="server-detail">
-                                <span>進捗:</span>
-                                <span>${job.progress || 0}%</span>
-                            </div>
-                            <div class="server-detail">
-                                <span>処理済み:</span>
-                                <span>${formatFileSize(job.processed_bytes || 0)} / ${formatFileSize(job.total_bytes || 0)}</span>
-                            </div>
-                            <div class="server-detail">
-                                <span>ソース:</span>
-                                <span>${job.source}</span>
-                            </div>
-                            <div class="server-detail">
-                                <span>ターゲット:</span>
-                                <span>${job.target}</span>
-                            </div>
-                        </div>
-                        <div class="server-actions">
-                            <button class="btn btn-danger btn-sm" data-job-id="${job.id}" data-action="cancel">キャンセル</button>
-                        </div>
-                    </div>
-                `;
-                
-                jobsListEl.appendChild(jobCard);
-            });
-            
-            // ジョブキャンセルボタンのイベントリスナー
-            document.querySelectorAll('[data-job-id]').forEach(button => {
-                button.addEventListener('click', async (event) => {
-                    const jobId = event.target.dataset.jobId;
-                    
-                    try {
-                        await apiRequest(`/jobs/${jobId}/cancel`, { method: 'POST' });
-                        showAlert('ジョブをキャンセルしました', 'success');
-                        addLogEntry('system', 'warning', `ジョブをキャンセル: ${jobId}`);
-                        
-                        // ジョブリストを更新
-                        setTimeout(loadJobs, 1000);
-                    } catch (error) {
-                        addLogEntry('system', 'error', `ジョブのキャンセルに失敗: ${error.message}`);
-                        // エラーはapiRequest内で処理済み
-                    }
-                });
-            });
-        }
-        
-        // ログ関連の関数
-        function loadLogs() {
-            renderLogs();
-        }
-        
-        // クイックアクションの処理
-        document.getElementById('quick-restart-all').addEventListener('click', () => {
-            if (confirm('すべてのサーバーを再起動しますか？')) {
-                addLogEntry('system', 'warning', '全サーバー再起動を実行');
-                showAlert('全サーバー再起動を開始しました', 'success');
-            }
-        });
-        
-        document.getElementById('quick-stop-all').addEventListener('click', () => {
-            if (confirm('すべてのサーバーを停止しますか？')) {
-                addLogEntry('system', 'warning', '全サーバー停止を実行');
-                showAlert('全サーバー停止を開始しました', 'success');
-            }
-        });
-        
-        document.getElementById('quick-backup').addEventListener('click', () => {
-            addLogEntry('system', 'info', 'バックアップ作成を開始');
-            showAlert('バックアップ作成を開始しました', 'success');
-        });
-        
-        document.getElementById('quick-cleanup').addEventListener('click', () => {
-            if (confirm('古いログファイルを削除しますか？')) {
-                addLogEntry('system', 'info', 'ログクリンナップを実行');
-                showAlert('ログクリンナップを開始しました', 'success');
-            }
-        });
-        
-        // アラート表示
+
+        // ユーティリティ
         function showAlert(message, type) {
-            const alertEl = document.createElement('div');
-            alertEl.className = `alert alert-${type}`;
-            alertEl.textContent = message;
-            
-            alertAreaEl.appendChild(alertEl);
-            
-            // 5秒後にアラートを削除
-            setTimeout(() => {
-                alertEl.remove();
-            }, 5000);
+            type = type || 'info';
+            var div = document.createElement('div');
+            div.className = 'alert alert-' + type;
+            div.textContent = message;
+            alertAreaEl.appendChild(div);
+            setTimeout(function() { div.remove(); }, 5000);
         }
-        
-        // モーダルを閉じる
-        document.querySelectorAll('.close').forEach(closeBtn => {
-            closeBtn.addEventListener('click', () => {
+
+        // イベントリスナー設定
+        document.querySelectorAll('.close').forEach(function(btn) {
+            btn.addEventListener('click', function() {
                 serverDetailModal.style.display = 'none';
                 settingsModal.style.display = 'none';
             });
         });
-        
-        // モーダル外をクリックで閉じる
-        window.addEventListener('click', (event) => {
-            if (event.target === serverDetailModal) {
-                serverDetailModal.style.display = 'none';
-            }
-            if (event.target === settingsModal) {
-                settingsModal.style.display = 'none';
-            }
+
+        window.addEventListener('click', function(e) {
+            if (e.target === serverDetailModal) serverDetailModal.style.display = 'none';
+            if (e.target === settingsModal) settingsModal.style.display = 'none';
         });
-        
-        // 設定ボタンのイベント
-        document.getElementById('settings-btn').addEventListener('click', () => {
+
+        document.getElementById('settings-btn').addEventListener('click', function() {
             settingsModal.style.display = 'flex';
-            
-            // モーダルを表示したらスクロール位置をリセット
-            const modalBody = settingsModal.querySelector('.modal-body');
-            modalBody.scrollTop = 0;
         });
-        
-        // 設定保存ボタンのイベント
+
         document.getElementById('save-settings-btn').addEventListener('click', saveSettings);
-        
-        // 設定キャンセルボタンのイベント
-        document.getElementById('cancel-settings-btn').addEventListener('click', () => {
+        document.getElementById('cancel-settings-btn').addEventListener('click', function() {
             settingsModal.style.display = 'none';
         });
-        
-        // ログ関連のイベント
-        document.getElementById('refresh-logs').addEventListener('click', loadLogs);
+
+        document.getElementById('refresh-servers').addEventListener('click', loadServers);
+        document.getElementById('refresh-dashboard').addEventListener('click', loadDashboard);
+        document.getElementById('refresh-jobs').addEventListener('click', loadJobs);
+        document.getElementById('refresh-logs').addEventListener('click', renderLogs);
         document.getElementById('clear-logs').addEventListener('click', clearLogs);
         document.getElementById('export-logs').addEventListener('click', exportLogs);
-        
-        // ダッシュボード更新ボタン
-        document.getElementById('refresh-dashboard').addEventListener('click', loadDashboard);
-        
-        // プレイヤーサーバー選択のイベント
+        document.getElementById('create-backup').addEventListener('click', createBackup);
         document.getElementById('players-server-select').addEventListener('change', loadPlayers);
-        
-        // バックアップ作成ボタン
-        document.getElementById('create-backup').addEventListener('click', () => {
-            addLogEntry('system', 'info', 'バックアップ作成を開始');
-            showAlert('バックアップ作成を開始しました', 'success');
-        });
-        
+
         // 初期化
-        document.addEventListener('DOMContentLoaded', () => {
-            // 設定の読み込み
+        document.addEventListener('DOMContentLoaded', function() {
             loadSettings();
-            
-            // サーバー一覧の更新ボタン
-            document.getElementById('refresh-servers').addEventListener('click', loadServers);
-            
-            // ジョブ一覧の更新ボタン
-            document.getElementById('refresh-jobs').addEventListener('click', loadJobs);
         });
     </script>
 </body>
