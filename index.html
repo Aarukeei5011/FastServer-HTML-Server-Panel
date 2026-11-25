@@ -1,970 +1,108 @@
-<!DOCTYPE html>
-<html lang="ja">
+<!doctype html>
+<html lang="ja" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastServer Minecraft サーバーパネル</title>
-    <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --success: #27ae60;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --light: #ecf0f1;
-            --dark: #34495e;
-            --gray: #95a5a6;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f5f7fa; color: #333; line-height: 1.6; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        header { background: linear-gradient(135deg, var(--primary), var(--dark)); color: white; padding: 1.5rem 0; border-radius: 10px; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .header-content { display: flex; justify-content: space-between; align-items: center; padding: 0 2rem; flex-wrap: wrap; gap: 10px; }
-        .logo { font-size: 1.8rem; font-weight: bold; }
-        .header-controls { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .api-key-display { background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 5px; font-size: 0.9rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .status-indicator { display: flex; align-items: center; gap: 10px; }
-        .status-dot { width: 12px; height: 12px; border-radius: 50%; background-color: var(--success); animation: pulse 2s infinite; }
-        .status-dot.disconnected { background-color: var(--danger); animation: none; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem; overflow: hidden; }
-        .card-header { background-color: var(--light); padding: 1rem 1.5rem; border-bottom: 1px solid #ddd; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-        .card-body { padding: 1.5rem; }
-        .server-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-        .server-card { border-left: 4px solid var(--secondary); transition: transform 0.3s ease; }
-        .server-card:hover { transform: translateY(-5px); }
-        .server-info { display: flex; flex-direction: column; gap: 0.8rem; }
-        .server-name { font-size: 1.3rem; font-weight: bold; color: var(--primary); }
-        .server-detail { display: flex; justify-content: space-between; }
-        .server-status { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
-        .status-running { background-color: rgba(39,174,96,0.2); color: var(--success); }
-        .status-stopped { background-color: rgba(231,76,60,0.2); color: var(--danger); }
-        .status-starting, .status-stopping { background-color: rgba(243,156,18,0.2); color: var(--warning); }
-        .server-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
-        .btn { padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 5px; }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .btn-primary { background-color: var(--secondary); color: white; }
-        .btn-primary:hover:not(:disabled) { background-color: #2980b9; }
-        .btn-success { background-color: var(--success); color: white; }
-        .btn-success:hover:not(:disabled) { background-color: #219653; }
-        .btn-warning { background-color: var(--warning); color: white; }
-        .btn-warning:hover:not(:disabled) { background-color: #e67e22; }
-        .btn-danger { background-color: var(--danger); color: white; }
-        .btn-danger:hover:not(:disabled) { background-color: #c0392b; }
-        .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.85rem; }
-        .console-output { background-color: #1e1e1e; color: #f0f0f0; font-family: 'Courier New', monospace; padding: 1rem; border-radius: 5px; max-height: 400px; overflow-y: auto; margin-bottom: 1rem; }
-        .console-line { margin-bottom: 0.3rem; line-height: 1.4; }
-        .console-input { display: flex; gap: 0.5rem; }
-        .console-input input { flex: 1; padding: 0.7rem; border: 1px solid #ddd; border-radius: 5px; font-family: 'Courier New', monospace; }
-        .file-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
-        .file-item { background-color: var(--light); padding: 1rem; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; text-align: center; }
-        .file-item:hover { background-color: #dfe6e9; }
-        .file-icon { font-size: 2rem; margin-bottom: 0.5rem; color: var(--gray); }
-        .file-name { font-weight: 600; margin-bottom: 0.3rem; word-break: break-all; }
-        .file-size { font-size: 0.8rem; color: var(--gray); }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 20px 0; }
-        .modal-content { background-color: white; border-radius: 10px; width: 90%; max-width: 600px; max-height: 90vh; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; margin: auto; }
-        .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        .modal-body { padding: 1.5rem; overflow-y: auto; flex-grow: 1; }
-        .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #ddd; display: flex; justify-content: flex-end; gap: 0.5rem; flex-shrink: 0; }
-        .close { font-size: 1.5rem; cursor: pointer; color: var(--gray); }
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
-        .form-control { width: 100%; padding: 0.7rem; border: 1px solid #ddd; border-radius: 5px; }
-        .alert { padding: 1rem; border-radius: 5px; margin-bottom: 1rem; }
-        .alert-success { background-color: rgba(39,174,96,0.2); color: var(--success); border-left: 4px solid var(--success); }
-        .alert-error { background-color: rgba(231,76,60,0.2); color: var(--danger); border-left: 4px solid var(--danger); }
-        .tab-container { margin-bottom: 1.5rem; }
-        .tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 1rem; overflow-x: auto; }
-        .tab { padding: 0.8rem 1.5rem; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
-        .tab.active { border-bottom-color: var(--secondary); color: var(--secondary); font-weight: 600; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .connection-status { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
-        .connection-message { font-size: 0.9rem; padding: 0.5rem 1rem; border-radius: 5px; background-color: var(--light); }
-        .connection-success { background-color: rgba(39,174,96,0.2); color: var(--success); }
-        .connection-error { background-color: rgba(231,76,60,0.2); color: var(--danger); }
-        .log-container { max-height: 500px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; padding: 1rem; background-color: #f9f9f9; }
-        .log-entry { padding: 0.7rem; margin-bottom: 0.5rem; border-radius: 5px; border-left: 4px solid var(--secondary); background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .log-timestamp { font-size: 0.8rem; color: var(--gray); margin-bottom: 0.3rem; }
-        .log-message { font-weight: 500; }
-        @media (max-width: 768px) {
-            .server-list { grid-template-columns: 1fr; }
-            .header-content { flex-direction: column; text-align: center; }
-            .header-controls { flex-direction: column; width: 100%; }
-            .api-key-display { max-width: 100%; }
-        }
-    </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
+<title>FastServer Management Panel 2.1</title>
+<style>
+:root{color-scheme:dark;--bg:#10151e;--panel:#171e2a;--raised:#202a39;--line:#303d50;--fg:#e6edf6;--muted:#9aabc0;--accent:#65c8ed;--green:#65d7a1;--red:#ff9494;--amber:#f2c477;--shadow:0 8px 24px #0002}html[data-theme=light]{color-scheme:light;--bg:#f2f5fa;--panel:#fff;--raised:#edf2f8;--line:#d5dfea;--fg:#172438;--muted:#51647b;--accent:#176eaa;--green:#167a50;--red:#ba303d;--amber:#8b590c;--shadow:0 8px 24px #233c5610}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit;color:inherit}button,input,select,textarea{border:1px solid var(--line);border-radius:8px;background:var(--raised);padding:9px 12px}button{cursor:pointer;font-weight:600}button:hover:not(:disabled){border-color:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}button.primary{background:var(--accent);color:#10202a;border-color:transparent}html[data-theme=light] button.primary{color:white}button.danger{color:var(--red)}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}input,select,textarea{min-width:0}input[type=checkbox]{accent-color:var(--accent)}a{color:var(--accent)}h1,h2,h3,p{margin:0}h1{font-size:25px;line-height:1.3}h2{font-size:17px}h3{font-size:15px}small,.muted{color:var(--muted)}.shell{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100vh}.side{position:sticky;top:0;height:100vh;background:var(--panel);border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:20px}.brand{display:flex;align-items:center;gap:11px;padding:0 7px}.mark{background:var(--accent);color:#10202a;display:grid;place-items:center;width:40px;height:40px;border-radius:11px;font-size:19px;font-weight:900}.brand strong{font-size:18px;letter-spacing:-.5px}.eyebrow{font-size:11px;letter-spacing:1.5px;color:var(--muted);font-weight:700}.nav{display:grid;gap:5px}.nav button{text-align:left;background:none;border-color:transparent;color:var(--muted)}.nav button.active{background:var(--raised);color:var(--accent);border-color:var(--line)}.side-bottom{margin-top:auto;padding:9px;display:grid;gap:8px}.main{min-width:0}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding:16px 26px;background:var(--panel)}.top .row{gap:8px}.row,.actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.grow{flex:1;min-width:0}.workspace{max-width:1500px;margin:auto;padding:26px;display:grid;gap:18px}.heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.heading p{color:var(--muted);margin-top:5px}.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);padding:18px;min-width:0;display:grid;gap:13px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));gap:12px}.metrics{grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))}.metric strong{font-size:30px;font-variant-numeric:tabular-nums;line-height:1.2}.metric{gap:5px}.pill{font-size:12px;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:99px;padding:3px 9px;color:var(--muted);white-space:nowrap}.pill:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--amber)}.server-title{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.server-title h2{overflow-wrap:anywhere}.kv{display:grid;grid-template-columns:minmax(90px,auto) minmax(0,1fr);gap:5px 12px;font-size:13px}.kv dt{color:var(--muted)}.kv dd{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}.kv{margin:0}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:9px}table{width:100%;border-collapse:collapse;text-align:left}th,td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}th{color:var(--muted);font-size:12px;background:var(--raised);white-space:nowrap}tr:last-child td{border:0}td:first-child{overflow-wrap:anywhere;min-width:140px}td .actions{min-width:150px}button.small{padding:5px 9px;font-size:12px}.file-name{background:none;border:0;color:var(--accent);padding:3px;text-align:left;overflow-wrap:anywhere}.empty{color:var(--muted);padding:25px 8px;text-align:center}.notice{padding:12px 15px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;background:var(--panel);overflow-wrap:anywhere}.notice.bad{border-left-color:var(--red)}.terminal{background:#0a0e15;color:#d0e0d4;border:1px solid #303d50;border-radius:9px;padding:14px;min-height:320px;height:clamp(320px,50vh,600px);overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.7 ui-monospace,Consolas,monospace;margin:0}.terminal .error{color:#ff9f9f}.terminal .warning{color:#f2c477}.toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.toolbar input[type=search]{flex:1;min-width:130px}.breadcrumbs{display:flex;flex-wrap:wrap;align-items:center;gap:5px;overflow-wrap:anywhere}.breadcrumbs button{background:none;border:0;padding:3px 5px;color:var(--accent)}progress{width:100%;height:12px;accent-color:var(--accent)}dialog{color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;width:min(640px,calc(100% - 24px));max-height:90vh;box-shadow:0 25px 80px #0006}dialog::backdrop{background:#0009}.dialog-head,.dialog-foot{padding:15px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line)}.dialog-foot{border-top:1px solid var(--line);border-bottom:0;justify-content:flex-end}.dialog-body{padding:20px;display:grid;gap:13px;overflow:auto}.field{display:grid;gap:5px}.field textarea{resize:vertical;min-height:100px;width:100%;font-family:ui-monospace,Consolas,monospace}.field label{font-weight:600}.check{display:flex;align-items:center;gap:8px}.dialog-error{color:var(--red);white-space:pre-wrap;overflow-wrap:anywhere}.toasts{position:fixed;right:16px;bottom:16px;width:min(380px,calc(100vw - 32px));display:grid;gap:8px;z-index:10}.toast{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--green);padding:12px;border-radius:9px;box-shadow:var(--shadow);overflow-wrap:anywhere}.toast.bad{border-left-color:var(--red)}.json{max-height:400px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--raised);padding:12px;border-radius:8px;font:12px/1.5 ui-monospace,monospace}.hide,[hidden]{display:none!important}.spacer{flex:1}.link{background:none;border:0;color:var(--accent);padding:0}.nowrap{white-space:nowrap}@media(max-width:800px){.shell{grid-template-columns:minmax(0,1fr)}.side{min-width:0;position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:12px;gap:8px}.nav{display:flex;overflow:auto;gap:5px;max-width:100%;min-width:0}.nav button{white-space:nowrap}.side-bottom{display:none}.top{padding:12px}.workspace{padding:14px;gap:12px}.card{padding:13px}.top select{max-width:200px}.top .row{min-width:0;max-width:100%}#baseLabel{overflow-wrap:anywhere;min-width:0}.workspace{min-width:0}.card{min-width:0}.terminal{min-width:0}h1{font-size:21px}}@media(prefers-reduced-motion:no-preference){button{transition:border-color .15s}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="header-content">
-                <div class="logo">FastServer Minecraft サーバーパネル</div>
-                <div class="header-controls">
-                    <div class="api-key-display" id="api-key-display">APIキーが設定されていません</div>
-                    <button class="btn btn-primary btn-sm" id="settings-btn">設定</button>
-                    <div class="status-indicator">
-                        <div class="status-dot" id="status-dot"></div>
-                        <span id="status-text">接続確認中...</span>
-                    </div>
-                </div>
-            </div>
-        </header>
-        
-        <div class="connection-status" id="connection-status" style="display: none;"></div>
-        
-        <div class="tab-container">
-            <div class="tabs">
-                <div class="tab active" data-tab="dashboard">ダッシュボード</div>
-                <div class="tab" data-tab="servers">サーバー管理</div>
-                <div class="tab" data-tab="console">コンソール</div>
-                <div class="tab" data-tab="files">ファイル管理</div>
-                <div class="tab" data-tab="players">プレイヤー管理</div>
-                <div class="tab" data-tab="backups">バックアップ</div>
-                <div class="tab" data-tab="jobs">ジョブ管理</div>
-                <div class="tab" data-tab="logs">操作ログ</div>
-            </div>
-            
-            <div class="tab-content active" id="dashboard-tab">
-                <div class="card">
-                    <div class="card-header">
-                        <span>サーバーステータス</span>
-                        <button class="btn btn-primary btn-sm" id="refresh-dashboard">更新</button>
-                    </div>
-                    <div class="card-body">
-                        <div class="server-list" id="dashboard-server-list"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="servers-tab">
-                <div class="card">
-                    <div class="card-header">
-                        <span>サーバー一覧</span>
-                        <button class="btn btn-primary btn-sm" id="refresh-servers">更新</button>
-                    </div>
-                    <div class="card-body">
-                        <div class="server-list" id="server-list"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="console-tab">
-                <div class="card">
-                    <div class="card-header">
-                        <span>サーバーコンソール</span>
-                        <select id="console-server-select"><option value="">サーバーを選択...</option></select>
-                    </div>
-                    <div class="card-body">
-                        <div class="console-output" id="console-output"><div class="console-line">サーバーを選択するとコンソール出力が表示されます</div></div>
-                        <div class="console-input">
-                            <input type="text" id="console-input" placeholder="コマンドを入力..." disabled>
-                            <button class="btn btn-primary" id="send-command" disabled>送信</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="files-tab">
-                <div class="card">
-                    <div class="card-header">
-                        <span>ファイルブラウザ</span>
-                        <div>
-                            <select id="files-server-select"><option value="">サーバーを選択...</option></select>
-                            <button class="btn btn-primary btn-sm" id="refresh-files">更新</button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="file-list" id="file-list"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="players-tab">
-                <div class="card">
-                    <div class="card-header">
-                        <span>プレイヤー管理</span>
-                        <select id="players-server-select"><option value="">サーバーを選択...</option></select>
-                    </div>
-                    <div class="card-body">
-                        <div id="player-list"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="backups-tab">
-                <div class="card">
-                    <div class="card-header">
-                        <span>バックアップ管理</span>
-                        <button class="btn btn-primary btn-sm" id="create-backup">バックアップ作成</button>
-                    </div>
-                    <div class="card-body">
-                        <div id="backup-list"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="jobs-tab">
-                <div class="card">
-                    <div class="card-header">
-                        <span>実行中のジョブ</span>
-                        <button class="btn btn-primary btn-sm" id="refresh-jobs">更新</button>
-                    </div>
-                    <div class="card-body">
-                        <div id="jobs-list"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="logs-tab">
-                <div class="card">
-                    <div class="card-header">
-                        <span>操作ログ</span>
-                        <div>
-                            <button class="btn btn-primary btn-sm" id="refresh-logs">更新</button>
-                            <button class="btn btn-danger btn-sm" id="clear-logs">ログをクリア</button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="log-container" id="log-container"></div>
-                        <div style="margin-top: 10px;">
-                            <button class="btn btn-primary btn-sm" id="export-logs">ログをエクスポート</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="alert-area"></div>
-    </div>
-    
-    <!-- サーバー詳細モーダル -->
-    <div class="modal" id="server-detail-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-server-name">サーバー詳細</h3>
-                <span class="close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="server-info" id="modal-server-info"></div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" id="modal-start-btn">起動</button>
-                <button class="btn btn-warning" id="modal-restart-btn">再起動</button>
-                <button class="btn btn-danger" id="modal-stop-btn">停止</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 設定モーダル -->
-    <div class="modal" id="settings-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>設定</h3>
-                <span class="close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="api-base-url">APIベースURL</label>
-                    <input type="text" id="api-base-url" class="form-control" value="http://localhost:4001/api">
-                </div>
-                <div class="form-group">
-                    <label for="api-key-input">APIキー</label>
-                    <input type="password" id="api-key-input" class="form-control" placeholder="APIキーを入力">
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="save-settings">
-                        設定を保存する
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="auto-refresh" checked>
-                        自動更新を有効にする
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label for="refresh-interval">更新間隔（秒）</label>
-                    <input type="number" id="refresh-interval" class="form-control" value="30" min="5" max="300">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" id="save-settings-btn">保存して接続</button>
-                <button class="btn" id="cancel-settings-btn">キャンセル</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // グローバル変数（あえて整理しすぎない）
-        var API_BASE_URL = 'http://localhost:4001/api';
-        var API_KEY = '';
-        var AUTO_REFRESH = true;
-        var REFRESH_INTERVAL = 30;
-        var refreshIntervalId = null;
-        var currentServerId = null;
-        var currentPath = '';
-        var consoleInterval = null;
-        var isConnected = false;
-        var operationLogs = [];
-
-        // DOM要素をまとめて取得
-        var serverListEl = document.getElementById('server-list');
-        var dashboardServerListEl = document.getElementById('dashboard-server-list');
-        var consoleOutputEl = document.getElementById('console-output');
-        var consoleInputEl = document.getElementById('console-input');
-        var sendCommandBtn = document.getElementById('send-command');
-        var fileListEl = document.getElementById('file-list');
-        var playerListEl = document.getElementById('player-list');
-        var backupListEl = document.getElementById('backup-list');
-        var jobsListEl = document.getElementById('jobs-list');
-        var alertAreaEl = document.getElementById('alert-area');
-        var serverDetailModal = document.getElementById('server-detail-modal');
-        var modalServerName = document.getElementById('modal-server-name');
-        var modalServerInfo = document.getElementById('modal-server-info');
-        var modalStartBtn = document.getElementById('modal-start-btn');
-        var modalRestartBtn = document.getElementById('modal-restart-btn');
-        var modalStopBtn = document.getElementById('modal-stop-btn');
-        var settingsModal = document.getElementById('settings-modal');
-        var apiKeyDisplay = document.getElementById('api-key-display');
-        var statusDot = document.getElementById('status-dot');
-        var statusText = document.getElementById('status-text');
-        var connectionStatus = document.getElementById('connection-status');
-
-        // タブ切り替え
-        document.querySelectorAll('.tab').forEach(function(tab) {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-                document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
-                
-                var tabName = tab.dataset.tab;
-                if (tabName === 'dashboard') loadDashboard();
-                else if (tabName === 'servers') loadServers();
-                else if (tabName === 'console') initConsole();
-                else if (tabName === 'files') initFiles();
-                else if (tabName === 'players') loadPlayers();
-                else if (tabName === 'backups') loadBackups();
-                else if (tabName === 'jobs') loadJobs();
-                else if (tabName === 'logs') renderLogs();
-            });
-        });
-
-        // 設定読み込み
-        function loadSettings() {
-            var saved = localStorage.getItem('fastserver-settings');
-            if (saved) {
-                try {
-                    var settings = JSON.parse(saved);
-                    API_BASE_URL = settings.apiBaseUrl || API_BASE_URL;
-                    API_KEY = settings.apiKey || '';
-                    AUTO_REFRESH = settings.autoRefresh !== undefined ? settings.autoRefresh : true;
-                    REFRESH_INTERVAL = settings.refreshInterval || 30;
-                    
-                    document.getElementById('api-base-url').value = API_BASE_URL;
-                    document.getElementById('api-key-input').value = API_KEY;
-                    document.getElementById('save-settings').checked = true;
-                    document.getElementById('auto-refresh').checked = AUTO_REFRESH;
-                    document.getElementById('refresh-interval').value = REFRESH_INTERVAL;
-                    
-                    updateApiKeyDisplay();
-                    if (API_KEY) testConnection();
-                    setupAutoRefresh();
-                } catch(e) {
-                    console.error('設定の読み込みに失敗', e);
-                }
-            } else {
-                setTimeout(function() { settingsModal.style.display = 'flex'; }, 500);
-            }
-            loadOperationLogs();
-        }
-
-        function setupAutoRefresh() {
-            if (refreshIntervalId) clearInterval(refreshIntervalId);
-            if (AUTO_REFRESH && isConnected) {
-                refreshIntervalId = setInterval(function() {
-                    var activeTab = document.querySelector('.tab.active').dataset.tab;
-                    if (activeTab === 'dashboard') loadDashboard();
-                    else if (activeTab === 'servers') loadServers();
-                    else if (activeTab === 'jobs') loadJobs();
-                }, REFRESH_INTERVAL * 1000);
-            }
-        }
-
-        function saveSettings() {
-            var apiBaseUrl = document.getElementById('api-base-url').value;
-            var apiKey = document.getElementById('api-key-input').value;
-            var save = document.getElementById('save-settings').checked;
-            var autoRefresh = document.getElementById('auto-refresh').checked;
-            var refreshInterval = parseInt(document.getElementById('refresh-interval').value);
-            
-            API_BASE_URL = apiBaseUrl;
-            API_KEY = apiKey;
-            AUTO_REFRESH = autoRefresh;
-            REFRESH_INTERVAL = refreshInterval;
-            
-            if (save) {
-                localStorage.setItem('fastserver-settings', JSON.stringify({
-                    apiBaseUrl: API_BASE_URL,
-                    apiKey: API_KEY,
-                    autoRefresh: AUTO_REFRESH,
-                    refreshInterval: REFRESH_INTERVAL
-                }));
-            } else {
-                localStorage.removeItem('fastserver-settings');
-            }
-            
-            updateApiKeyDisplay();
-            settingsModal.style.display = 'none';
-            testConnection();
-            setupAutoRefresh();
-            addLogEntry('system', 'info', '設定を更新しました');
-        }
-
-        function updateApiKeyDisplay() {
-            if (API_KEY) {
-                var masked = API_KEY.substring(0,4) + '•'.repeat(8) + API_KEY.substring(API_KEY.length-4);
-                apiKeyDisplay.textContent = masked;
-            } else {
-                apiKeyDisplay.textContent = 'APIキーが設定されていません';
-            }
-        }
-
-        function updateConnectionStatus(connected, message) {
-            isConnected = connected;
-            if (connected) {
-                statusDot.classList.remove('disconnected');
-                statusText.textContent = '接続済み';
-                connectionStatus.innerHTML = '<div class="connection-message connection-success">' + (message || 'FastServer APIに正常に接続されました') + '</div>';
-                setupAutoRefresh();
-            } else {
-                statusDot.classList.add('disconnected');
-                statusText.textContent = '接続なし';
-                connectionStatus.innerHTML = '<div class="connection-message connection-error">' + (message || 'FastServer APIに接続できません') + '</div>';
-                if (refreshIntervalId) clearInterval(refreshIntervalId);
-            }
-            connectionStatus.style.display = 'block';
-        }
-
-        async function testConnection() {
-            try {
-                var data = await apiRequest('/check_alive');
-                updateConnectionStatus(true, 'APIサーバーは稼働中です (稼働時間: ' + data.uptime + ')');
-                addLogEntry('system', 'success', 'APIサーバーに正常に接続しました');
-            } catch(e) {
-                updateConnectionStatus(false, e.message);
-                addLogEntry('system', 'error', 'APIサーバーへの接続に失敗: ' + e.message);
-            }
-        }
-
-        // ログ関連
-        function loadOperationLogs() {
-            var saved = localStorage.getItem('fastserver-operation-logs');
-            if (saved) {
-                try { operationLogs = JSON.parse(saved); } catch(e) { operationLogs = []; }
-            } else {
-                operationLogs = [];
-                addLogEntry('system', 'info', 'サーバーパネルを起動しました');
-            }
-            renderLogs();
-        }
-
-        function saveOperationLogs() {
-            localStorage.setItem('fastserver-operation-logs', JSON.stringify(operationLogs.slice(-1000)));
-        }
-
-        function addLogEntry(category, type, message, serverId) {
-            var entry = {
-                id: Date.now() + Math.random().toString(36).substr(2,9),
-                timestamp: new Date().toISOString(),
-                category: category,
-                type: type,
-                message: message,
-                serverId: serverId || null
-            };
-            operationLogs.push(entry);
-            saveOperationLogs();
-            if (document.getElementById('logs-tab').classList.contains('active')) renderLogs();
-        }
-
-        function renderLogs() {
-            var container = document.getElementById('log-container');
-            container.innerHTML = '';
-            if (operationLogs.length === 0) {
-                container.innerHTML = '<p>ログがありません</p>';
-                return;
-            }
-            var reversed = operationLogs.slice().reverse();
-            reversed.forEach(function(log) {
-                var div = document.createElement('div');
-                div.className = 'log-entry log-type-' + log.type;
-                var date = new Date(log.timestamp);
-                div.innerHTML = '<div class="log-timestamp">' + date.toLocaleString('ja-JP') + '</div>' +
-                               '<div class="log-message">' + (log.serverId ? '<span style="background:#ecf0f1;padding:2px 6px;border-radius:3px;margin-right:5px;">' + log.serverId + '</span>' : '') + 
-                               log.message + '</div>';
-                container.appendChild(div);
-            });
-        }
-
-        function clearLogs() {
-            if (confirm('すべての操作ログを削除しますか？')) {
-                operationLogs = [];
-                saveOperationLogs();
-                renderLogs();
-                addLogEntry('system', 'info', '操作ログをクリアしました');
-            }
-        }
-
-        function exportLogs() {
-            var dataStr = JSON.stringify(operationLogs, null, 2);
-            var blob = new Blob([dataStr], {type: 'application/json'});
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = 'fastserver-logs-' + new Date().toISOString().split('T')[0] + '.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            addLogEntry('system', 'info', '操作ログをエクスポートしました');
-        }
-
-        // APIリクエスト
-        async function apiRequest(endpoint, options) {
-            options = options || {};
-            if (!API_KEY) throw new Error('APIキーが設定されていません');
-            var url = API_BASE_URL + endpoint;
-            var headers = {
-                'Authorization': 'Bearer ' + API_KEY,
-                'Content-Type': 'application/json',
-                ...(options.headers || {})
-            };
-            try {
-                var response = await fetch(url, { ...options, headers: headers });
-                if (!response.ok) {
-                    if (response.status === 401) throw new Error('認証に失敗しました。APIキーを確認してください');
-                    else if (response.status === 403) throw new Error('APIが無効化されています');
-                    else if (response.status === 404) throw new Error('APIエンドポイントが見つかりません');
-                    else throw new Error('APIエラー: ' + response.status);
-                }
-                return await response.json();
-            } catch(e) {
-                console.error('API request failed:', e);
-                showAlert('APIリクエストに失敗しました: ' + e.message, 'error');
-                throw e;
-            }
-        }
-
-        // サーバー一覧
-        async function loadServers() {
-            if (!isConnected) return;
-            try {
-                var data = await apiRequest('/servers');
-                renderServers(data.servers);
-                updateServerSelects(data.servers);
-                addLogEntry('server', 'info', 'サーバー一覧を取得しました');
-            } catch(e) {}
-        }
-
-        async function loadDashboard() {
-            if (!isConnected) return;
-            try {
-                var data = await apiRequest('/servers');
-                renderDashboardServers(data.servers);
-                addLogEntry('system', 'info', 'ダッシュボードを更新しました');
-            } catch(e) {}
-        }
-
-        function renderServers(servers) {
-            serverListEl.innerHTML = '';
-            if (servers.length === 0) {
-                serverListEl.innerHTML = '<p>サーバーが見つかりません</p>';
-                return;
-            }
-            servers.forEach(function(server) {
-                var card = createServerCard(server, false);
-                serverListEl.appendChild(card);
-            });
-        }
-
-        function renderDashboardServers(servers) {
-            dashboardServerListEl.innerHTML = '';
-            if (servers.length === 0) {
-                dashboardServerListEl.innerHTML = '<p>サーバーが見つかりません</p>';
-                return;
-            }
-            servers.forEach(function(server) {
-                var card = createServerCard(server, true);
-                dashboardServerListEl.appendChild(card);
-            });
-        }
-
-        function createServerCard(server, isDashboard) {
-            var card = document.createElement('div');
-            card.className = 'server-card card';
-            var statusClass = 'server-status status-' + server.status.toLowerCase();
-            var actionButtons = '';
-            if (!isDashboard) {
-                actionButtons = '<button class="btn btn-primary btn-sm" data-server-id="' + server.id + '" data-action="detail">詳細</button>';
-            }
-            actionButtons += '<button class="btn btn-success btn-sm" data-server-id="' + server.id + '" data-action="start"' + (server.status === 'RUNNING' ? ' disabled' : '') + '>起動</button>' +
-                            '<button class="btn btn-warning btn-sm" data-server-id="' + server.id + '" data-action="restart"' + (server.status !== 'RUNNING' ? ' disabled' : '') + '>再起動</button>' +
-                            '<button class="btn btn-danger btn-sm" data-server-id="' + server.id + '" data-action="stop"' + (server.status !== 'RUNNING' ? ' disabled' : '') + '>停止</button>';
-            
-            card.innerHTML = '<div class="card-body">' +
-                                '<div class="server-info">' +
-                                    '<div class="server-name">' + server.name + '</div>' +
-                                    '<div class="server-detail"><span>ソフトウェア:</span><span>' + server.software + '</span></div>' +
-                                    '<div class="server-detail"><span>バージョン:</span><span>' + server.version + '</span></div>' +
-                                    '<div class="server-detail"><span>ステータス:</span><span class="' + statusClass + '">' + server.status + '</span></div>' +
-                                '</div>' +
-                                '<div class="server-actions">' + actionButtons + '</div>' +
-                            '</div>';
-            
-            card.querySelectorAll('button[data-action]').forEach(function(btn) {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    handleServerAction(btn.dataset.action, btn.dataset.serverId);
-                });
-            });
-            return card;
-        }
-
-        function updateServerSelects(servers) {
-            var consoleSelect = document.getElementById('console-server-select');
-            var filesSelect = document.getElementById('files-server-select');
-            var playersSelect = document.getElementById('players-server-select');
-            [consoleSelect, filesSelect, playersSelect].forEach(function(select) {
-                var current = select.value;
-                select.innerHTML = '<option value="">サーバーを選択...</option>';
-                servers.forEach(function(server) {
-                    var opt = document.createElement('option');
-                    opt.value = server.id;
-                    opt.textContent = server.name;
-                    select.appendChild(opt);
-                });
-                if (current && servers.find(function(s){ return s.id === current; })) select.value = current;
-            });
-        }
-
-        async function handleServerAction(action, serverId) {
-            if (action === 'detail') {
-                showServerDetail(serverId);
-                return;
-            }
-            if (action === 'stop' && !confirm('サーバーを停止しますか？')) return;
-            if (action === 'restart' && !confirm('サーバーを再起動しますか？')) return;
-            try {
-                await apiRequest('/servers/' + serverId + '/' + action, { method: 'POST' });
-                showAlert('サーバーを' + action + 'しました', 'success');
-                addLogEntry('server', 'success', 'サーバー ' + serverId + ' を' + action + 'しました', serverId);
-                setTimeout(function() {
-                    loadServers();
-                    loadDashboard();
-                }, 1000);
-            } catch(e) {}
-        }
-
-        async function showServerDetail(serverId) {
-            try {
-                var data = await apiRequest('/servers/' + serverId);
-                modalServerName.textContent = data.servername;
-                var statusClass = 'server-status status-' + data.status.toLowerCase();
-                modalServerInfo.innerHTML = '<div class="server-detail"><span>ID:</span><span>' + data.id + '</span></div>' +
-                    '<div class="server-detail"><span>ソフトウェア:</span><span>' + data.software + '</span></div>' +
-                    '<div class="server-detail"><span>バージョン:</span><span>' + data.version + '</span></div>' +
-                    '<div class="server-detail"><span>ステータス:</span><span class="' + statusClass + '">' + data.status + '</span></div>' +
-                    '<div class="server-detail"><span>パス:</span><span>' + data.serverpath + '</span></div>';
-                modalStartBtn.disabled = data.status === 'RUNNING';
-                modalRestartBtn.disabled = data.status !== 'RUNNING';
-                modalStopBtn.disabled = data.status !== 'RUNNING';
-                modalStartBtn.onclick = function() { handleServerAction('start', serverId); };
-                modalRestartBtn.onclick = function() { handleServerAction('restart', serverId); };
-                modalStopBtn.onclick = function() { handleServerAction('stop', serverId); };
-                serverDetailModal.style.display = 'flex';
-                addLogEntry('server', 'info', 'サーバー ' + serverId + ' の詳細を表示', serverId);
-            } catch(e) {}
-        }
-
-        // コンソール
-        function initConsole() {
-            var select = document.getElementById('console-server-select');
-            select.addEventListener('change', function() {
-                var serverId = select.value;
-                if (consoleInterval) clearInterval(consoleInterval);
-                if (serverId) {
-                    currentServerId = serverId;
-                    consoleInputEl.disabled = false;
-                    sendCommandBtn.disabled = false;
-                    loadConsoleOutput(serverId);
-                    consoleInterval = setInterval(function() { loadConsoleOutput(serverId); }, 3000);
-                    addLogEntry('system', 'info', 'コンソールをサーバー ' + serverId + ' に接続', serverId);
-                } else {
-                    currentServerId = null;
-                    consoleInputEl.disabled = true;
-                    sendCommandBtn.disabled = true;
-                    consoleOutputEl.innerHTML = '<div class="console-line">サーバーを選択するとコンソール出力が表示されます</div>';
-                }
-            });
-            sendCommandBtn.addEventListener('click', sendCommand);
-            consoleInputEl.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') sendCommand();
-            });
-        }
-
-        async function loadConsoleOutput(serverId) {
-            try {
-                var data = await apiRequest('/servers/' + serverId + '/console/tail?lines=100');
-                consoleOutputEl.innerHTML = '';
-                data.log.forEach(function(line) {
-                    var div = document.createElement('div');
-                    div.className = 'console-line';
-                    div.textContent = line;
-                    consoleOutputEl.appendChild(div);
-                });
-                consoleOutputEl.scrollTop = consoleOutputEl.scrollHeight;
-            } catch(e) {}
-        }
-
-        async function sendCommand() {
-            var command = consoleInputEl.value.trim();
-            if (!command || !currentServerId) return;
-            try {
-                await apiRequest('/servers/' + currentServerId + '/command', {
-                    method: 'POST',
-                    body: JSON.stringify({ command: command })
-                });
-                consoleInputEl.value = '';
-                showAlert('コマンドを送信しました', 'success');
-                addLogEntry('command', 'info', 'コマンド実行: ' + command, currentServerId);
-                setTimeout(function() { loadConsoleOutput(currentServerId); }, 500);
-            } catch(e) {}
-        }
-
-        // ファイル管理
-        function initFiles() {
-            var select = document.getElementById('files-server-select');
-            select.addEventListener('change', function() {
-                var serverId = select.value;
-                if (serverId) {
-                    currentServerId = serverId;
-                    currentPath = '';
-                    loadFiles(serverId, '');
-                    addLogEntry('file', 'info', 'ファイルブラウザをサーバー ' + serverId + ' に接続', serverId);
-                } else {
-                    currentServerId = null;
-                    currentPath = '';
-                    fileListEl.innerHTML = '';
-                }
-            });
-            document.getElementById('refresh-files').addEventListener('click', function() {
-                if (currentServerId) loadFiles(currentServerId, currentPath);
-            });
-        }
-
-        async function loadFiles(serverId, path) {
-            try {
-                var query = path ? '?path=' + encodeURIComponent(path) : '';
-                var data = await apiRequest('/servers/' + serverId + '/files/list' + query);
-                renderFiles(data.items, data.path);
-                addLogEntry('file', 'info', 'ディレクトリを表示: ' + (path || '/'), serverId);
-            } catch(e) {}
-        }
-
-        function renderFiles(items, path) {
-            fileListEl.innerHTML = '';
-            if (path) {
-                var parent = document.createElement('div');
-                parent.className = 'file-item';
-                parent.innerHTML = '<div class="file-icon">📁</div><div class="file-name">..</div><div class="file-size">親ディレクトリ</div>';
-                parent.addEventListener('click', function() {
-                    var parentPath = path.split('/').slice(0, -1).join('/');
-                    loadFiles(currentServerId, parentPath);
-                });
-                fileListEl.appendChild(parent);
-            }
-            items.forEach(function(item) {
-                var div = document.createElement('div');
-                div.className = 'file-item';
-                var icon = item.type === 'directory' ? '📁' : '📄';
-                div.innerHTML = '<div class="file-icon">' + icon + '</div><div class="file-name">' + item.name + '</div><div class="file-size">' + formatFileSize(item.size) + '</div>';
-                div.addEventListener('click', function() {
-                    if (item.type === 'directory') {
-                        var newPath = path ? path + '/' + item.name : item.name;
-                        loadFiles(currentServerId, newPath);
-                    } else {
-                        downloadFile(currentServerId, path ? path + '/' + item.name : item.name);
-                        addLogEntry('file', 'info', 'ファイルをダウンロード: ' + item.name, currentServerId);
-                    }
-                });
-                fileListEl.appendChild(div);
-            });
-        }
-
-        function downloadFile(serverId, filePath) {
-            var url = API_BASE_URL + '/servers/' + serverId + '/files/download?path=' + encodeURIComponent(filePath);
-            var a = document.createElement('a');
-            a.href = url;
-            a.setAttribute('download', '');
-            a.style.display = 'none';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 B';
-            var k = 1024;
-            var sizes = ['B', 'KB', 'MB', 'GB'];
-            var i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-
-        // プレイヤー
-        async function loadPlayers() {
-            var select = document.getElementById('players-server-select');
-            var serverId = select.value;
-            if (!serverId) {
-                playerListEl.innerHTML = '<p>サーバーを選択してください</p>';
-                return;
-            }
-            try {
-                // 実際のAPIが実装されたら置き換え
-                var players = [];
-                if (players.length === 0) {
-                    playerListEl.innerHTML = '<p>オンラインプレイヤーはいません</p>';
-                } else {
-                    playerListEl.innerHTML = '';
-                    players.forEach(function(player) {
-                        var div = document.createElement('div');
-                        div.className = 'card';
-                        div.innerHTML = '<div class="card-body" style="text-align:center;">' +
-                                        '<div style="font-size:2rem;">👤</div>' +
-                                        '<div style="font-weight:600;">' + player.name + '</div>' +
-                                        '<div style="font-size:0.85rem;color:var(--success);">オンライン</div>' +
-                                        '</div>';
-                        playerListEl.appendChild(div);
-                    });
-                }
-            } catch(e) {
-                playerListEl.innerHTML = '<p>プレイヤー情報の取得に失敗しました</p>';
-            }
-        }
-
-        // バックアップ
-        async function loadBackups() {
-            try {
-                // 実際のAPIが実装されたら置き換え
-                var backups = [];
-                if (backups.length === 0) {
-                    backupListEl.innerHTML = '<p>バックアップがありません</p>';
-                } else {
-                    backupListEl.innerHTML = '';
-                    backups.forEach(function(backup) {
-                        var div = document.createElement('div');
-                        div.className = 'card';
-                        div.innerHTML = '<div class="card-body">' +
-                                        '<div style="font-weight:600;">' + backup.name + '</div>' +
-                                        '<div style="font-size:0.85rem;color:var(--gray);">サイズ: ' + formatFileSize(backup.size) + '</div>' +
-                                        '<div style="font-size:0.85rem;color:var(--gray);">作成日: ' + backup.date + '</div>' +
-                                        '</div>';
-                        backupListEl.appendChild(div);
-                    });
-                }
-            } catch(e) {
-                backupListEl.innerHTML = '<p>バックアップ情報の取得に失敗しました</p>';
-            }
-        }
-
-        async function createBackup() {
-            showAlert('バックアップ作成を開始しました', 'success');
-            addLogEntry('system', 'info', 'バックアップ作成を開始');
-        }
-
-        // ジョブ
-        async function loadJobs() {
-            try {
-                var data = await apiRequest('/jobs');
-                var jobs = data.jobs || [];
-                if (jobs.length === 0) {
-                    jobsListEl.innerHTML = '<p>実行中のジョブはありません</p>';
-                } else {
-                    jobsListEl.innerHTML = '';
-                    jobs.forEach(function(job) {
-                        var div = document.createElement('div');
-                        div.className = 'card';
-                        var statusClass = 'server-status status-' + job.status.toLowerCase();
-                        div.innerHTML = '<div class="card-body">' +
-                                        '<div style="font-weight:600;">' + job.type.toUpperCase() + ' ジョブ</div>' +
-                                        '<div class="server-detail"><span>ステータス:</span><span class="' + statusClass + '">' + job.status + '</span></div>' +
-                                        '<div class="server-detail"><span>進捗:</span><span>' + (job.progress || 0) + '%</span></div>' +
-                                        (job.processed_bytes ? '<div class="server-detail"><span>処理済み:</span><span>' + formatFileSize(job.processed_bytes) + ' / ' + formatFileSize(job.total_bytes) + '</span></div>' : '') +
-                                        '<button class="btn btn-danger btn-sm" data-job-id="' + job.id + '">キャンセル</button>' +
-                                        '</div>';
-                        var cancelBtn = div.querySelector('button[data-job-id]');
-                        cancelBtn.addEventListener('click', async function() {
-                            try {
-                                await apiRequest('/jobs/' + job.id + '/cancel', { method: 'POST' });
-                                showAlert('ジョブをキャンセルしました', 'success');
-                                addLogEntry('system', 'warning', 'ジョブをキャンセル: ' + job.id);
-                                setTimeout(loadJobs, 1000);
-                            } catch(e) {}
-                        });
-                        jobsListEl.appendChild(div);
-                    });
-                }
-            } catch(e) {
-                jobsListEl.innerHTML = '<p>ジョブ情報の取得に失敗しました</p>';
-            }
-        }
-
-        // ユーティリティ
-        function showAlert(message, type) {
-            type = type || 'info';
-            var div = document.createElement('div');
-            div.className = 'alert alert-' + type;
-            div.textContent = message;
-            alertAreaEl.appendChild(div);
-            setTimeout(function() { div.remove(); }, 5000);
-        }
-
-        // イベントリスナー設定
-        document.querySelectorAll('.close').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                serverDetailModal.style.display = 'none';
-                settingsModal.style.display = 'none';
-            });
-        });
-
-        window.addEventListener('click', function(e) {
-            if (e.target === serverDetailModal) serverDetailModal.style.display = 'none';
-            if (e.target === settingsModal) settingsModal.style.display = 'none';
-        });
-
-        document.getElementById('settings-btn').addEventListener('click', function() {
-            settingsModal.style.display = 'flex';
-        });
-
-        document.getElementById('save-settings-btn').addEventListener('click', saveSettings);
-        document.getElementById('cancel-settings-btn').addEventListener('click', function() {
-            settingsModal.style.display = 'none';
-        });
-
-        document.getElementById('refresh-servers').addEventListener('click', loadServers);
-        document.getElementById('refresh-dashboard').addEventListener('click', loadDashboard);
-        document.getElementById('refresh-jobs').addEventListener('click', loadJobs);
-        document.getElementById('refresh-logs').addEventListener('click', renderLogs);
-        document.getElementById('clear-logs').addEventListener('click', clearLogs);
-        document.getElementById('export-logs').addEventListener('click', exportLogs);
-        document.getElementById('create-backup').addEventListener('click', createBackup);
-        document.getElementById('players-server-select').addEventListener('change', loadPlayers);
-
-        // 初期化
-        document.addEventListener('DOMContentLoaded', function() {
-            loadSettings();
-        });
-    </script>
-</body>
-</html>
+<div class="shell"><aside class="side"><div class="brand"><div class="mark">F</div><div><strong>FastServer</strong><div class="eyebrow">MANAGEMENT PANEL 2.1</div></div></div><nav id="nav" class="nav" aria-label="管理メニュー"></nav><div class="side-bottom"><span class="eyebrow">DOCUMENTATION</span><a href="https://fss.zpw.jp/" target="_blank" rel="noopener noreferrer">FastServer 公式サイト ↗</a><a href="https://api.zpw.jp/fastserver/specs/" target="_blank" rel="noopener noreferrer">HTTP API 仕様 ↗</a><small>非公式クライアント / v2.0</small></div></aside><main class="main"><header class="top"><div class="row"><span id="connection" class="pill">未接続</span><span id="plan" class="pill">プラン —</span><small id="baseLabel"></small></div><div class="row"><label for="serverSelect" class="muted">対象サーバー</label><select id="serverSelect" aria-label="対象サーバー"><option value="">未選択</option></select><button id="theme" aria-label="テーマ切替">☀ / ☾</button><button id="settings">接続設定</button></div></header><div class="workspace"><div class="heading"><div><h1 id="heading"></h1><p id="subtitle"></p></div><div class="row"><small id="updated">未更新</small><button id="refresh">更新</button></div></div><div id="banner" class="notice" role="status" hidden></div><section id="view"></section></div></main></div>
+<dialog id="dialog" aria-labelledby="dialogTitle"><form id="dialogForm"><div class="dialog-head"><h2 id="dialogTitle"></h2><button type="button" id="dialogClose" aria-label="閉じる">×</button></div><div class="dialog-body" id="dialogBody"></div><div class="dialog-foot"><button type="button" id="dialogCancel">閉じる</button><button type="submit" class="primary" id="dialogSubmit">実行</button></div></form></dialog><div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id), enc=encodeURIComponent, bytes=s=>new TextEncoder().encode(s).length, MiB=1024*1024;
+const LIMIT={json:512*1024,command:8*1024,read:MiB,upload:64*MiB};
+const DEFAULT='http://localhost:4001/api';
+const S={base:DEFAULT,key:'',auth:'bearer',auto:true,interval:15,connected:false,plan:null,servers:[],id:'',tab:'dashboard',path:'',logs:[],epoch:0,seq:0,pending:false,busy:0,connectSeq:0,controllers:new Set(),consoleLines:[],tail:200,consoleAuto:true,follow:true,consoleFilter:'',history:[],historyPos:0,fileFilter:'',serverFilter:'',jobFilter:'',logFilter:'',jobs:[],files:[],last:null,health:null,processHealth:null,diagnostics:[],timer:null};
+const PAGES={dashboard:['概要','登録済みサーバーと接続情報'],servers:['サーバー管理','起動・停止・再起動・稼働状態'],console:['コンソール','ログの確認とコマンド送信'],files:['ファイル管理','閲覧・編集・転送・圧縮・展開'],jobs:['ジョブ管理','ZIP圧縮・展開の進捗とキャンセル'],backups:['ZIPバックアップ','指定ディレクトリの圧縮と展開'],logs:['操作履歴','このパネルで行った操作の記録'],api:['API診断','疎通確認・利用プラン・仕様情報'],reference:['APIリファレンス','公式仕様に基づく28エンドポイントの詳細']};
+const node=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=String(text??'—');return e};
+const add=(p,...children)=>{children.flat().filter(Boolean).forEach(x=>p.append(x));return p};
+const btn=(label,fn,cls='',disabled=false)=>{const b=node('button',cls,label);b.type='button';b.disabled=disabled;b.addEventListener('click',async()=>{try{await fn(b)}catch(e){if(e.name!=='AbortError')toast(safeError(e),true)}});return b};
+const box=(...children)=>add(node('div','card'),children), row=(...children)=>add(node('div','row'),children), actions=(...children)=>add(node('div','actions'),children), empty=t=>node('div','empty',t), notice=(t,err=false)=>node('div','notice'+(err?' bad':''),t), h2=t=>node('h2','',t);
+function kv(obj){const d=node('dl','kv');for(const [k,v] of Object.entries(obj))add(d,node('dt','',k),node('dd','',v===undefined||v===null?'—':typeof v==='object'?JSON.stringify(v):v));return d}
+function pill(t){const str=String(t??'UNKNOWN'),u=str.toUpperCase(),c=['RUNNING','COMPLETED','OK','CONNECTED'].includes(u)?'ok':['STOPPED','FAILED','ERROR','CANCELED','NOT_RUNNING'].includes(u)?'bad':['STARTING','STOPPING','QUEUED','CANCELING'].includes(u)?'warn':'';return node('span','pill '+c,str)}
+function toast(t,bad=false){const el=node('div','toast'+(bad?' bad':''),t);$('toasts').append(el);setTimeout(()=>el.remove(),5500)}
+function safeError(e){let m=String(e?.message||e||'不明なエラー');if(S.key)m=m.split(S.key).join('[REDACTED]');return m}
+function storageGet(k){try{return localStorage.getItem(k)}catch{return null}}function storageSet(k,v){try{localStorage.setItem(k,v)}catch{}}function storageDel(k){try{localStorage.removeItem(k)}catch{}}
+function log(type,action,id=''){S.logs.unshift({time:new Date().toISOString(),type,action: S.key?String(action).split(S.key).join('[REDACTED]'):String(action),server:id});S.logs=S.logs.slice(0,500);if(S.tab==='logs'&&!$('dialog').open)render()}
+function errorBanner(t=''){const b=$('banner');b.hidden=!t;b.textContent=t;b.className='notice bad'}
+function fmtSize(n){if(n===null||n===undefined||!Number.isFinite(Number(n))||Number(n)<0)return '—';let v=Number(n),i=0;while(v>=1024&&i<4){v/=1024;i++}return `${v.toLocaleString('ja-JP',{maximumFractionDigits:1})} ${['B','KiB','MiB','GiB','TiB'][i]}`}
+function fmtUnix(t){if(t==null||t==='')return '—';const n=Number(t);return Number.isFinite(n)&&Number.isFinite(new Date(n*1000).valueOf())?new Date(n*1000).toLocaleString('ja-JP'):String(t)}
+function fmtTime(t){if(t==null||t==='')return '—';const n=typeof t==='number'?(t<1e12?t*1000:t):t;const d=new Date(n);return Number.isNaN(d.valueOf())?String(t):d.toLocaleString('ja-JP')}
+function selected(){return S.servers.find(s=>String(s.id)===S.id)}
+function srv(id,route=''){if(!id)throw Error('対象サーバーを選択してください。');return '/servers/'+enc(String(id))+route}
+function query(path,params){return path+'?'+new URLSearchParams(params).toString()}
+function relative(p,allowRoot=false){p=String(p??'');if(!p&&allowRoot)return '';if(!p||p.startsWith('/')||/[\\:*?\[\]\u0000-\u001f]/.test(p)||p.split('/').some(x=>!x||x==='.'||x==='..'))throw Error('サーバー基準の相対パスを指定してください（絶対パス、..、ワイルドカード等は不可）。');return p}
+function join(p,n){return relative(p?p+'/'+n:n)}
+function normalizeBase(input){const u=new URL(input.trim());if(!['http:','https:'].includes(u.protocol)||u.username||u.password||u.search||u.hash)throw Error('HTTP(S) URLを指定してください。認証情報・クエリ・フラグメントは不可です。');u.pathname=u.pathname.replace(/\/+$/,'');if(!u.pathname.endsWith('/api'))u.pathname+='/api';return u.toString().replace(/\/$/,'')}
+function apiURL(path,process=false){return (process?new URL(S.base).origin:S.base)+path}
+function stopRequests(){for(const c of S.controllers)c.abort();S.controllers.clear();S.seq++;S.epoch++;S.pending=false}
+async function request(path,{method='GET',body,raw,process=false,download=false,timeout=20000}={}){const epoch=S.epoch,controller=new AbortController();const headers={Accept:download?'*/*':'application/json'};if(S.key)headers[S.auth==='x-fs-key'?'x-fs-key':'Authorization']=S.auth==='x-fs-key'?S.key:'Bearer '+S.key;let payload;if(raw!==undefined){if(raw.size>LIMIT.upload)throw Error('アップロード上限は64 MiBです。');headers['Content-Type']='application/octet-stream';payload=raw}else if(body!==undefined){payload=JSON.stringify(body);const max=path.endsWith('/command')?LIMIT.command:LIMIT.json;if(bytes(payload)>max)throw Error('JSONリクエスト上限 '+fmtSize(max)+' を超えています。');headers['Content-Type']='application/json'}S.controllers.add(controller);const timer=setTimeout(()=>controller.abort(),timeout);try{const r=await fetch(apiURL(path,process),{method,headers,body:payload,signal:controller.signal,cache:'no-store',credentials:'omit',redirect:'error',referrerPolicy:'no-referrer'});if(epoch!==S.epoch)throw new DOMException('接続変更','AbortError');if(download&&r.ok){const blob=await r.blob();if(epoch!==S.epoch)throw new DOMException('接続変更','AbortError');return blob;}const text=await r.text();let data;try{data=text?JSON.parse(text):null}catch{throw Error(`HTTP ${r.status}: JSONではない応答です。API URLを確認してください。`)}if(epoch!==S.epoch)throw new DOMException('接続変更','AbortError');if(!r.ok||data?.ok===false||data?.status==='false'||data?.status===false){const hint={401:'認証失敗',403:'API無効またはアクセス拒否',404:'対象またはAPIが見つかりません',405:'メソッドが許可されていません'}[r.status]||'APIエラー';throw Error(`HTTP ${r.status} ${hint}: ${data?.error||data?.message||r.statusText}`)}if(data===null)throw Error('空のAPI応答です。');return data}catch(e){if(epoch!==S.epoch)throw new DOMException('接続変更','AbortError');if(e.name==='AbortError')throw Error('通信がタイムアウトしました。');if(e instanceof TypeError)throw Error('通信失敗：API起動状態、URL、CORS、HTTPS混在コンテンツを確認してください。');throw e}finally{clearTimeout(timer);S.controllers.delete(controller)}}
+function updateHeader(){const c=$('connection');c.className='pill '+(S.connected?'ok':'');c.textContent=S.connected?'接続済み':'未接続';$('plan').textContent='プラン '+(S.plan??'—');$('baseLabel').textContent=S.base;const sel=$('serverSelect');sel.replaceChildren();const placeholder=node('option','','未選択');placeholder.value='';sel.append(placeholder);for(const s of S.servers){const opt=node('option','',s.name??s.id);opt.value=String(s.id);sel.append(opt)}sel.value=S.id;sel.disabled=!S.connected||S.busy>0;$('refresh').disabled=S.busy>0||!S.connected;$('updated').textContent=S.last?'更新 '+fmtTime(S.last):'未更新'}
+function ensureArray(v,label){if(!Array.isArray(v))throw Error(label+' の応答形式が仕様と異なります。');return v}
+async function getServers(){const d=await request('/servers');S.servers=ensureArray(d.servers,'servers');if(!S.servers.some(s=>String(s.id)===S.id)){S.id=S.servers.length?String(S.servers[0].id):'';S.path='';S.files=[];S.consoleLines=[]}updateHeader()}
+function switchView(tab){if(S.busy)return;S.tab=tab;S.seq++;S.pending=false;errorBanner();render();refresh()}
+async function refresh({quiet=false}={}){if(!S.connected||S.pending||S.busy)return;const seq=++S.seq,epoch=S.epoch,tab=S.tab,id=S.id,path=S.path;S.pending=true;const current=()=>seq===S.seq&&epoch===S.epoch;try{if(tab==='dashboard'||tab==='servers'){const d=await request('/servers');if(!current())return;S.servers=ensureArray(d.servers,'servers');if(!selected()){S.id=S.servers.length?String(S.servers[0].id):'';S.path='';S.consoleLines=[];S.files=[]}}else if(tab==='console'&&id){const d=await request(query(srv(id,'/console/tail'),{lines:S.tail}));if(!current())return;S.consoleLines=ensureArray(d.log,'log')}else if(tab==='files'&&id){const d=await request(query(srv(id,'/files/list'),{path}));if(!current())return;S.path=relative(d.path??path,true);S.files=ensureArray(d.items,'items')}else if(tab==='jobs'){const d=await request('/jobs');if(!current())return;S.jobs=ensureArray(d.jobs,'jobs')}else if(tab==='api'){await diagnostics(false);if(!current())return}else return;S.last=Date.now();errorBanner();updateHeader();if(tab==='console'&&$('terminal'))renderTerminal();else render()}catch(e){if(current()&&e.name!=='AbortError'){errorBanner(safeError(e));if(!quiet)log('error','取得失敗: '+safeError(e),id)}}finally{if(current())S.pending=false}}
+function autoTimer(){clearInterval(S.timer);S.timer=setInterval(()=>{if(!S.connected||!S.auto||document.hidden||$('dialog').open||S.busy)return;if(S.tab==='console'&&S.consoleAuto)refresh({quiet:true});else if(['dashboard','servers','jobs'].includes(S.tab)&&Date.now()-(S.last||0)>=S.interval*1000)refresh({quiet:true})},3000)}
+async function connect(config){stopRequests();const token=++S.connectSeq;Object.assign(S,config,{connected:false,plan:null,servers:[],id:'',files:[],jobs:[],consoleLines:[],path:'',last:null,health:null,processHealth:null,diagnostics:[]});updateHeader();render();errorBanner();try{const d=await request('/check_alive');if(token!==S.connectSeq)return;if(d.status!=='ok')throw Error('ヘルスチェックが正常応答ではありません。');S.health=d;await getServers();if(token!==S.connectSeq)return;S.connected=true;try{const p=await request('/check_plan');if(token===S.connectSeq)S.plan=p.plan??null}catch(e){if(token===S.connectSeq)log('warning','プラン取得不可: '+safeError(e))}if(token!==S.connectSeq)return;S.last=Date.now();updateHeader();render();log('success','API接続成功');toast('FastServer APIに接続しました。');await refresh()}catch(e){if(token!==S.connectSeq)return;S.connected=false;S.servers=[];S.id='';updateHeader();render();errorBanner(safeError(e));log('error','接続失敗: '+safeError(e));toast(safeError(e),true);throw e}}
+function disconnect(){stopRequests();S.connectSeq++;Object.assign(S,{key:'',connected:false,plan:null,id:'',servers:[],files:[],jobs:[],consoleLines:[],path:'',health:null,processHealth:null,diagnostics:[],last:null,history:[]});updateHeader();render();errorBanner();log('info','切断しました')}
+function searchInput(value,placeholder,fn){const i=node('input');i.type='search';i.value=value;i.placeholder=placeholder;i.setAttribute('aria-label',placeholder);i.addEventListener('input',()=>fn(i.value));return i}
+function table(headers,rows){const t=node('table'),head=node('thead'),tr=node('tr'),body=node('tbody');headers.forEach(x=>tr.append(node('th','',x)));head.append(tr);rows.forEach(r=>{const line=node('tr');r.forEach(v=>{const td=node('td');td.append(v instanceof Node?v:document.createTextNode(String(v??'—')));line.append(td)});body.append(line)});return add(node('div','table-wrap'),add(t,head,body))}
+function render(){const [title,sub]=PAGES[S.tab];$('heading').textContent=title;$('subtitle').textContent=sub;for(const n of $('nav').children){n.classList.toggle('active',n.dataset.page===S.tab);n.setAttribute('aria-current',n.dataset.page===S.tab?'page':'false');n.disabled=S.busy>0}const root=$('view');root.replaceChildren();root.style.display='grid';root.style.gap='14px';if(!S.connected&&!['api','logs','reference'].includes(S.tab)){add(root,box(h2('FastServerに接続してください'),node('p','muted','既定のAPIは localhost:4001/api です。APIキー未設定の環境にも対応しています。'),row(btn('接続設定を開く',settings,'primary'))));return}({dashboard:renderDashboard,servers:renderServers,console:renderConsole,files:renderFiles,jobs:renderJobs,backups:renderBackups,logs:renderLogs,api:renderAPI,reference:renderReference}[S.tab])(root)}
+function metric(label,value){return add(node('div','card metric'),node('small','',label),node('strong','',value))}
+function renderDashboard(root){const counts=x=>S.servers.filter(s=>s.status===x).length;add(root,add(node('div','grid metrics'),metric('登録サーバー',S.servers.length),metric('稼働中',counts('RUNNING')),metric('停止中',counts('STOPPED')),metric('移行中',counts('STARTING')+counts('STOPPING'))),box(h2('API情報'),kv({'接続先':S.base,'利用プラン':S.plan,'API稼働時間':S.health?.uptime,'API時刻':fmtUnix(S.health?.timestamp)})),box(h2('サーバー一覧'),S.servers.length?add(node('div','grid'),S.servers.map(serverCard)):empty('登録済みサーバーはありません。')))}
+function serverCard(s){const id=String(s.id);return box(add(node('div','server-title'),h2(s.name??id),pill(s.status)),kv({'ID':id,'ソフトウェア':s.software,'バージョン':s.version,'パス':s.path}),actions(btn('詳細',()=>serverDetails(id),'small'),btn('起動',()=>serverAction(id,'start'),'small primary',s.status!=='STOPPED'),btn('停止',()=>serverAction(id,'stop'),'small danger',s.status!=='RUNNING'),btn('再起動',()=>serverAction(id,'restart'),'small',s.status!=='RUNNING'),btn('コンソール',()=>openServerView(id,'console'),'small'),btn('ファイル',()=>openServerView(id,'files'),'small')))}
+function renderServers(root){const grid=node('div','grid');const draw=()=>{grid.replaceChildren();const q=S.serverFilter.toLowerCase();const list=S.servers.filter(s=>[s.name,s.id,s.software,s.version,s.status].some(x=>String(x??'').toLowerCase().includes(q)));add(grid,list.length?list.map(serverCard):empty('該当するサーバーがありません。'))};add(root,box(row(searchInput(S.serverFilter,'サーバー名・ID・状態を検索',v=>{S.serverFilter=v;draw()})),grid));draw()}
+function setServer(id){S.id=id;S.seq++;S.pending=false;S.path='';S.files=[];S.consoleLines=[];S.history=[];S.historyPos=0;S.fileFilter='';updateHeader()}
+function openServerView(id,tab){if(S.busy)return;setServer(id);switchView(tab)}
+const ACTIONS={start:'起動',stop:'停止',restart:'再起動'};
+async function serverAction(id,action){if(!confirm(`${selectedName(id)} を${ACTIONS[action]}しますか？`))return;await mutation(ACTIONS[action],id,()=>request(srv(id,'/'+action),{method:'POST'}),d=>`要求を受理しました: ${d.status??'OK'}`)}
+function selectedName(id){return S.servers.find(s=>String(s.id)===String(id))?.name??id}
+async function serverDetails(id){const epoch=S.epoch;const [d,r]=await Promise.all([request(srv(id)),request(srv(id,'/status'))]);if(epoch!==S.epoch)return;showInfo('サーバー詳細',kv({'ID':d.id,'名前':d.servername,'ソフトウェア':d.software,'バージョン':d.version,'ディレクトリ':d.serverpath,'存在':d.exists,'稼働状態':r.status,'取得時刻':fmtUnix(r.timestamp)}))}
+async function mutation(label,id,fn,success){if(!S.connected||S.busy)throw Error('接続状態または処理中の操作を確認してください。');const epoch=S.epoch;S.busy++;S.seq++;S.pending=false;updateHeader();const active=document.activeElement;if(active instanceof HTMLButtonElement)active.disabled=true;try{const d=await fn();if(epoch!==S.epoch)throw new DOMException('接続変更','AbortError');const msg=success?success(d):label+' が完了しました。';log('success',label+': '+msg,id);toast(msg);return d}catch(e){if(e.name!=='AbortError'){log('error',label+': '+safeError(e),id);throw e}}finally{S.busy--;if(active instanceof HTMLButtonElement)active.disabled=false;updateHeader();if(epoch===S.epoch&&!$('dialog').open)await refresh()}}
+function renderConsole(root){if(!S.id){add(root,box(empty('対象サーバーを選択してください。')));return}const terminal=node('pre','terminal');terminal.id='terminal';terminal.tabIndex=0;const lines=node('select');lines.setAttribute('aria-label','取得行数');[50,100,200,500,1000,2000].forEach(n=>{const o=node('option','',n+' 行');o.value=n;lines.append(o)});lines.value=S.tail;lines.onchange=()=>{S.tail=Number(lines.value);S.seq++;S.pending=false;refresh()};const filter=searchInput(S.consoleFilter,'ログを検索',v=>{S.consoleFilter=v;renderTerminal()});const check=(text,val,fn)=>{const i=node('input');i.type='checkbox';i.checked=val;i.onchange=()=>fn(i.checked);return add(node('label','check'),i,document.createTextNode(text))};const input=node('input','grow');input.id='commandInput';input.placeholder='コマンドを入力（先頭の / は任意）';input.setAttribute('aria-label','コンソールコマンド');const send=async(cmd=input.value)=>{const id=S.id,command=cmd.trim().replace(/^\//,'');if(!command)return;if(bytes(JSON.stringify({command}))>LIMIT.command)throw Error('コマンドのJSONリクエスト全体は8 KiB以下にしてください。');await mutation('コマンド送信',id,()=>request(srv(id,'/command'),{method:'POST',body:{command}}),()=> 'コマンドを送信しました。結果はログをご確認ください。');if(S.id===id){S.history.push(command);S.history=S.history.slice(-100);S.historyPos=S.history.length;input.value=''}};input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send().catch(e=>toast(safeError(e),true))}if(e.key==='ArrowUp'){e.preventDefault();S.historyPos=Math.max(0,S.historyPos-1);input.value=S.history[S.historyPos]??''}if(e.key==='ArrowDown'){e.preventDefault();S.historyPos=Math.min(S.history.length,S.historyPos+1);input.value=S.history[S.historyPos]??''}};add(root,box(h2(selectedName(S.id)),row(lines,filter,check('自動取得',S.consoleAuto,v=>S.consoleAuto=v),check('末尾追従',S.follow,v=>{S.follow=v;renderTerminal()}),btn('ログ保存',()=>saveBlob(new Blob([S.consoleLines.join('\n')],{type:'text/plain'}),'console.log'),'small')),terminal,row(input,btn('送信',()=>send(),'primary'),btn('オンライン確認',()=>send('list'))),node('small','','3秒間隔のポーリング。プレイヤー専用APIはないため、オンライン確認はMinecraftの list コマンドを送信します。外部管理プロセスでは送信できない場合があります。')));renderTerminal()}
+function renderTerminal(){const t=$('terminal');if(!t)return;const at=t.scrollTop, q=S.consoleFilter.toLowerCase();t.replaceChildren();const list=S.consoleLines.filter(l=>String(l).toLowerCase().includes(q));if(!list.length)t.textContent='ログがない、または検索条件に一致しません。';else for(const l of list){const line=node('div',/\bERROR\b/i.test(l)?'error':/\bWARN\b/i.test(l)?'warning':'',l);t.append(line)}t.scrollTop=S.follow?t.scrollHeight:at}
+function saveBlob(blob,name){const u=URL.createObjectURL(blob),a=node('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),30000)}
+function navigatePath(path){if(S.busy)return;S.path=relative(path,true);S.fileFilter='';S.files=[];S.seq++;S.pending=false;render();refresh()}
+function renderFiles(root){if(!S.id){add(root,box(empty('対象サーバーを選択してください。')));return}const path=S.path,id=S.id,bc=node('div','breadcrumbs');add(bc,btn('ルート',()=>navigatePath('')));let acc='';for(const segment of path.split('/').filter(Boolean)){acc=acc?acc+'/'+segment:segment;const p=acc;add(bc,node('span','muted','/'),btn(segment,()=>navigatePath(p)))}const list=node('div');const draw=()=>{const q=S.fileFilter.toLowerCase();const items=S.files.filter(x=>String(x.name).toLowerCase().includes(q)).sort((a,b)=>(a.type==='directory'?0:1)-(b.type==='directory'?0:1)||String(a.name).localeCompare(String(b.name),'ja'));list.replaceChildren();if(!items.length){list.append(empty('ファイルがない、または検索条件に一致しません。'));return}list.append(table(['名前','種類','サイズ','操作'],items.map(x=>{const dir=x.type==='directory',p=()=>join(path,x.name);return [btn((dir?'▸ ':'▪ ')+x.name,()=>dir?navigatePath(p()):downloadFile(id,p()),'file-name'),dir?'フォルダー':'ファイル',dir?'—':fmtSize(x.size),actions(!dir&&btn('編集',()=>editFile(id,p()),'small',Number(x.size)>LIMIT.read),!dir&&btn('取得',()=>downloadFile(id,p()),'small'),btn('移動/改名',()=>fileOperation('rename',id,p()),'small'),btn('コピー',()=>fileOperation('copy',id,p()),'small'),dir&&btn('ZIP',()=>zipForm(id,p()),'small'),!dir&&/\.zip$/i.test(x.name)&&btn('展開',()=>unzipForm(id,p()),'small'),btn('削除',()=>deleteFile(id,p(),dir),'small danger'))]})))};add(root,box(h2(selectedName(id)),bc,row(path&&btn('親へ',()=>navigatePath(path.split('/').slice(0,-1).join('/'))),btn('新規ファイル',()=>createFile(id,path)),btn('新規フォルダー',()=>mkdir(id,path)),btn('アップロード',()=>uploadForm(id,path),'primary'),btn('URL取得',()=>fetchForm(id,path)),btn('ZIP圧縮',()=>zipForm(id,path)),btn('ZIP展開',()=>unzipForm(id,''))),searchInput(S.fileFilter,'ファイル名を検索',v=>{S.fileFilter=v;draw()}),list,node('small','','読み込み 1 MiB / JSON書き込み 512 KiB（JSON全体） / アップロード 64 MiB / URL取得 100 MB（API仕様上限）')));draw()}
+let dialogAction=null,dialogBusy=false;
+function field(name,label,value='',type='text',hint=''){const wrap=node('div','field'),l=node('label','',label),i=type==='textarea'?node('textarea'):node('input');i.id='field-'+name;i.name=name;l.htmlFor=i.id;if(type==='textarea'){i.rows=12;i.value=value}else{i.type=type;if(type==='checkbox')i.checked=Boolean(value);else if(type!=='file')i.value=value}if(type==='checkbox'){wrap.className='check';add(wrap,i,l)}else add(wrap,l,i);if(hint)wrap.append(node('small','',hint));return wrap}
+function openDialog(title,content,action=null,label='実行'){const d=$('dialog');if(d.open||dialogBusy)throw Error('別のダイアログを閉じてください。');$('dialogTitle').textContent=title;$('dialogBody').replaceChildren(...content);const error=node('div','dialog-error');error.id='dialogError';error.setAttribute('role','alert');$('dialogBody').append(error);dialogAction=action;$('dialogSubmit').hidden=!action;$('dialogSubmit').textContent=label;$('dialogSubmit').disabled=false;d.showModal()}
+function showInfo(title,...content){openDialog(title,content)}
+function closeDialog(){if(!dialogBusy){$('dialog').close();dialogAction=null}}
+function val(n){return $('field-'+n)?.value??''}function checked(n){return Boolean($('field-'+n)?.checked)}
+$('dialogForm').addEventListener('submit',async e=>{e.preventDefault();if(!dialogAction||dialogBusy)return;dialogBusy=true;$('dialogSubmit').disabled=true;$('dialogClose').disabled=true;$('dialogCancel').disabled=true;$('dialogError').textContent='';try{await dialogAction();$('dialog').close();dialogAction=null;await refresh()}catch(e){$('dialogError').textContent=safeError(e)}finally{dialogBusy=false;$('dialogSubmit').disabled=false;$('dialogClose').disabled=false;$('dialogCancel').disabled=false}});
+$('dialogClose').onclick=closeDialog;$('dialogCancel').onclick=closeDialog;$('dialog').addEventListener('cancel',e=>{e.preventDefault();closeDialog()});
+function settings(){const auth=node('select');auth.id='field-auth';for(const [v,t] of [['bearer','Authorization: Bearer'],['x-fs-key','x-fs-key']]){const o=node('option','',t);o.value=v;auth.append(o)}auth.value=S.auth;const authLabel=node('label','','認証ヘッダー');authLabel.htmlFor=auth.id;const interval=field('interval','自動更新間隔（秒）',S.interval,'number');interval.querySelector('input').min=5;interval.querySelector('input').max=300;interval.querySelector('input').required=true;openDialog('接続設定',[field('base','API ベース URL',S.base,'url','既定: http://localhost:4001/api'),field('key','APIキー',S.key,'password','API側でキーを設定していない場合は空欄。キーはブラウザーに永続保存しません。'),add(node('div','field'),authLabel,auth),field('auto','自動更新を有効にする',S.auto,'checkbox'),interval,field('remember','接続先・表示設定のみ保存',!!storageGet('fsmp-v2-settings'),'checkbox'),notice('APIキーは接続先にのみ送信します。信頼できるFastServerに接続してください。'),S.connected?btn('切断してキーを消去',()=>{closeDialog();disconnect()},'danger'):null].filter(Boolean),async()=>{const base=normalizeBase(val('base')),u=new URL(base),key=val('key').trim(),interval=Number(val('interval'));if(!Number.isInteger(interval)||interval<5||interval>300)throw Error('更新間隔は5〜300秒です。');if(u.protocol==='http:'&&!['localhost','127.0.0.1','[::1]'].includes(u.hostname)&&!confirm('HTTP接続では通信内容が暗号化されません。信頼できるネットワークであることを確認しましたか？'))throw Error('接続を中止しました。');const config={base,key,auth:auth.value,auto:checked('auto'),interval};if(checked('remember'))storageSet('fsmp-v2-settings',JSON.stringify({base,auth:config.auth,auto:config.auto,interval,theme:document.documentElement.dataset.theme}));else storageDel('fsmp-v2-settings');await connect(config)},'接続')}
+function fileMutation(label,id,op,body){return mutation(label,id,()=>request(srv(id,'/files/'+op),{method:'POST',body}))}
+function createFile(id,path){openDialog('空ファイルを作成',[field('path','相対パス',path?path+'/':'')],()=>fileMutation('ファイル作成',id,'create',{path:relative(val('path'))}),'作成')}
+function mkdir(id,path){openDialog('フォルダー作成',[field('path','相対パス',path?path+'/':''),field('parents','親ディレクトリも作成',true,'checkbox')],()=>fileMutation('フォルダー作成',id,'mkdir',{path:relative(val('path')),parents:checked('parents')}),'作成')}
+async function editFile(id,path){const epoch=S.epoch;const d=await request(query(srv(id,'/files/read'),{path}));if(epoch!==S.epoch||S.id!==id||S.tab!=='files')return;if(typeof d.content!=='string')throw Error('テキストファイルの応答形式が不正です。');const original=d.content;const size=node('small','','');const f=field('content','内容',original,'textarea','文字コードや改行の扱いはAPI側の仕様に従います。');const area=f.querySelector('textarea');const update=()=>{const n=bytes(JSON.stringify({path,content:area.value}));size.textContent=`JSONサイズ: ${fmtSize(n)} / 512 KiB`;size.className=n>LIMIT.json?'bad':'muted'};area.addEventListener('input',update);update();openDialog('テキスト編集',[node('p','muted',selectedName(id)+' / '+path),f,size,notice('保存はファイルを上書きします。必要に応じて事前にダウンロードしてください。')],async()=>{if(area.value===original)return;if(!confirm(path+' を上書きしますか？'))throw Error('保存を中止しました。');await fileMutation('ファイル保存',id,'write',{path,content:area.value})},'上書き保存')}
+async function downloadFile(id,path){const b=await request(query(srv(id,'/files/download'),{path}),{download:true,timeout:180000});saveBlob(b,path.split('/').pop()||'download');log('success','ファイル取得: '+path,id);toast('ダウンロードを開始しました。')}
+function fileOperation(op,id,path){const label=op==='copy'?'コピー':'移動・改名';openDialog(label,[node('p','muted','元: '+path),field('to','移動先・コピー先',path),field('overwrite','既存のファイルを上書き',false,'checkbox')],async()=>{const to=relative(val('to'));if(to===path)throw Error('元と異なるパスを指定してください。');if(checked('overwrite')&&!confirm('既存のファイルを上書きしますか？'))throw Error('中止しました。');await fileMutation(label,id,op,{from:path,to,overwrite:checked('overwrite')})},label)}
+function deleteFile(id,path,dir){openDialog('削除の確認',[notice('この操作は取り消せません: '+path,true),dir?field('recursive','中身も含めて再帰削除する',false,'checkbox'):null,field('confirm','確認のため対象パスを入力','')].filter(Boolean),async()=>{if(val('confirm')!==path)throw Error('対象パスが一致しません。');await fileMutation('削除',id,'delete',{path,recursive:dir&&checked('recursive')})},'削除')}
+function uploadForm(id,path){const f=field('file','ローカルファイル','','file','64 MiB以下。バイナリをそのまま送信します。');const p=field('path','保存先の相対パス',path?path+'/':'');f.querySelector('input').onchange=e=>{const file=e.target.files[0];if(file)p.querySelector('input').value=path?path+'/'+file.name:file.name};openDialog('ファイルアップロード',[f,p,field('overwrite','既存ファイルの上書きを許可',false,'checkbox')],async()=>{const file=$('field-file').files[0];if(!file)throw Error('ファイルを選択してください。');if(file.size>LIMIT.upload)throw Error('64 MiB以下のファイルを選択してください。');const dest=relative(val('path'));if(checked('overwrite')&&!confirm(dest+' の上書きを許可しますか？'))throw Error('中止しました。');await mutation('アップロード',id,()=>request(query(srv(id,'/files/upload'),{path:dest,overwrite:String(checked('overwrite'))}),{method:'POST',raw:file,timeout:180000}),d=>'アップロード完了: '+fmtSize(d.bytes))},'アップロード')}
+function fetchForm(id,path){openDialog('URLからファイルを取得',[field('url','取得元 HTTP(S) URL','','url'),field('path','保存先の相対パス',path?path+'/':''),field('overwrite','既存ファイルの上書きを許可',false,'checkbox'),notice('FastServer側がURLにアクセスします。信頼できる公開配布元のみ使用してください。上限100 MB。')],async()=>{const url=new URL(val('url'));if(!['https:','http:'].includes(url.protocol)||url.username||url.password)throw Error('認証情報を含まないHTTP(S) URLを指定してください。');const dest=relative(val('path'));if(!confirm('指定URLからサーバーへ取得しますか？'))throw Error('中止しました。');await mutation('URL取得',id,()=>request(srv(id,'/files/fetch'),{method:'POST',body:{url:url.href,path:dest,overwrite:checked('overwrite')},timeout:180000}),d=>'取得完了: '+fmtSize(d.bytes))},'取得')}
+function zipForm(id,source=''){const name=source.split('/').pop()||'backup';const stamp=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);openDialog('ZIP圧縮ジョブ',[field('source','圧縮するディレクトリ',source,'text','ルート指定の可否はAPI仕様に明記されていないため、ディレクトリを指定してください。'),field('zip','出力ZIPの相対パス',name+'-'+stamp+'.zip'),notice('稼働中のワールドを圧縮すると整合性が保証されません。停止後の実行を推奨します。ZIP出力は圧縮元ディレクトリの外に指定してください。')],async()=>{const src=relative(val('source')),zip=relative(val('zip'));if(zip===src||zip.startsWith(src+'/'))throw Error('ZIPは圧縮元ディレクトリの外に保存してください。');if(!/\.zip$/i.test(zip))throw Error('ZIPファイル名を指定してください。');if(!confirm(`${src} を ${zip} に圧縮しますか？既存出力の上書き動作はAPI仕様に明記されていません。`))throw Error('中止しました。');await mutation('ZIP圧縮',id,()=>request(srv(id,'/files/zip'),{method:'POST',body:{source:src,zip_path:zip}}),d=>'ジョブ受理: '+(d.job?.id??'ID不明'))},'圧縮開始')}
+function unzipForm(id,zip=''){openDialog('ZIP展開ジョブ',[field('zip','ZIPファイルの相対パス',zip),field('dest','展開先ディレクトリ',zip?zip.replace(/\.zip$/i,'')+'-extracted':''),notice('展開上限: 合計200 MB、5000エントリ。既存ファイルとの競合時の動作は仕様に明記されていません。新規ディレクトリを推奨します。')],async()=>{const zip_path=relative(val('zip')),dest=relative(val('dest'));if(!confirm(`${zip_path} を ${dest} に展開しますか？`))throw Error('中止しました。');await mutation('ZIP展開',id,()=>request(srv(id,'/files/unzip'),{method:'POST',body:{zip_path,dest}}),d=>'ジョブ受理: '+(d.job?.id??'ID不明'))},'展開開始')}
+function renderBackups(root){add(root,box(h2('ZIPによる手動バックアップ'),notice('専用のバックアップ作成・一覧・復元APIは提供されていません。ここでは公式のZIP圧縮・展開ジョブを利用します。サーバー全体の整合性、上書き復元、自動スケジュールは保証されません。'),kv({'対象':selectedName(S.id)||'未選択','状態':selected()?.status}),row(btn('ディレクトリを圧縮',()=>zipForm(S.id),'primary',!S.id),btn('ZIPを別フォルダーに展開',()=>unzipForm(S.id), '',!S.id),btn('ファイル一覧',()=>switchView('files')),btn('ジョブを確認',()=>switchView('jobs')))))}
+function jobCard(j){const n=Number(j.progress),has=j.progress!=null&&Number.isFinite(n),p=node('progress');p.max=100;if(has)p.value=Math.max(0,Math.min(n,100));const status=String(j.status??'').toLowerCase();return box(row(h2((j.type??'job').toUpperCase()),pill(j.status)),node('small','muted',j.id),p,node('small','',has?Math.max(0,Math.min(n,100))+'%':'進捗不明'),kv({'処理済み':fmtSize(j.processed_bytes)+' / '+fmtSize(j.total_bytes),'元':j.source,'先':j.target,'開始':fmtUnix(j.started_at)}),actions(btn('詳細',()=>jobDetails(j.id),'small'),btn('キャンセル',()=>cancelJob(j.id),'small danger',!['queued','running'].includes(status))))}
+function renderJobs(root){const list=node('div','grid');const draw=()=>{list.replaceChildren();const q=S.jobFilter.toLowerCase();const jobs=S.jobs.filter(j=>[j.id,j.type,j.status,j.source,j.target].some(x=>String(x??'').toLowerCase().includes(q)));add(list,jobs.length?jobs.map(jobCard):empty('該当するジョブはありません。'))};add(root,box(h2('非同期ジョブ'),searchInput(S.jobFilter,'ID・種類・状態を検索',v=>{S.jobFilter=v;draw()}),list));draw()}
+async function jobDetails(id){const d=await request('/jobs/'+enc(id));showInfo('ジョブ詳細',kv({'ID':d.id,'種類':d.type,'状態':d.status,'進捗':d.progress==null?'—':d.progress+'%','処理済み':fmtSize(d.processed_bytes),'合計':fmtSize(d.total_bytes),'元':d.source,'先':d.target,'開始':fmtUnix(d.started_at),'終了':fmtUnix(d.finished_at),'メッセージ':d.message}))}
+async function cancelJob(id){if(!confirm('ジョブ '+id+' のキャンセルを要求しますか？'))return;await mutation('ジョブキャンセル','',()=>request('/jobs/'+enc(id)+'/cancel',{method:'POST'}),d=>d.status??'要求受理')}
+function renderLogs(root){const list=node('div');const draw=()=>{const q=S.logFilter.toLowerCase();const entries=S.logs.filter(l=>[l.type,l.action,l.server].some(x=>String(x).toLowerCase().includes(q)));list.replaceChildren();list.append(entries.length?table(['日時','種類','サーバー','内容'],entries.map(l=>[fmtTime(l.time),pill(l.type),l.server||'—',l.action])):empty('操作履歴がありません。'))};add(root,box(row(searchInput(S.logFilter,'履歴を検索',v=>{S.logFilter=v;draw()}),btn('JSON出力',()=>saveBlob(new Blob([JSON.stringify(S.logs,null,2)],{type:'application/json'}),'fastserver-operations.json')),btn('消去',()=>{if(confirm('このセッションの操作履歴を消去しますか？')){S.logs=[];draw()}},'danger')),notice('このパネル内のセッション履歴です。FastServer本体の監査ログではありません。APIキー、コマンド本文、ファイル本文は記録しません。'),list));draw()}
+const ENDPOINTS=[['GET','/check_alive','プロセス疎通（/api外）'],['GET','/api/check_alive','API疎通'],['GET','/api/check_plan','契約プラン'],['GET','/api','APIルート'],['GET','/api/servers','サーバー一覧'],['GET','/api/servers/{id}','詳細'],['GET','/api/servers/{id}/status','状態'],['POST','/api/servers/{id}/start','起動'],['POST','/api/servers/{id}/stop','停止'],['POST','/api/servers/{id}/restart','再起動'],['POST','/api/servers/{id}/command','コマンド'],['GET','/api/servers/{id}/console/tail','ログ'],...['list','read','write','create','mkdir','delete','rename','copy','upload','download','fetch','zip','unzip'].map(x=>[['list','read','download'].includes(x)?'GET':'POST','/api/servers/{id}/files/'+x,x]),['GET','/api/jobs','一覧'],['GET','/api/jobs/{id}','詳細'],['POST','/api/jobs/{id}/cancel','キャンセル']];
+async function diagnostics(renderAfter=true){const epoch=S.epoch;const tasks=[['プロセスヘルス','/check_alive',true],['APIヘルス','/check_alive',false],['APIルート','',false],['契約プラン','/check_plan',false]];const result=await Promise.all(tasks.map(async([name,path,process])=>{const start=performance.now();try{const data=await request(path,{process});if(epoch!==S.epoch)return {name,ok:false,ms:0,data:{error:'接続変更'}};if((name==='プロセスヘルス'||name==='APIヘルス')&&data.status!=='ok')throw Error('ヘルスチェック応答が正常ではありません。');if(name==='APIルート'&&data.ok!==true)throw Error('APIルートの応答が正常ではありません。');if(name==='契約プラン'&&(data.ok!==true||!['normal','pro'].includes(data.plan)))throw Error('プラン応答が仕様と異なります。');if(name==='プロセスヘルス')S.processHealth=data;if(name==='APIヘルス')S.health=data;if(name==='契約プラン')S.plan=data.plan??null;return {name,ok:true,ms:Math.round(performance.now()-start),data}}catch(e){return {name,ok:false,ms:Math.round(performance.now()-start),data:{error:safeError(e)}}}}));if(epoch!==S.epoch)return;S.diagnostics=result;updateHeader();if(renderAfter&&S.tab==='api')render()}
+function renderAPI(root){add(root,box(h2('接続診断'),kv({'ベースURL':S.base,'認証':S.key?S.auth+'（キー設定済み）':'キーなし','プラン':S.plan,'プロセスバージョン':S.processHealth?.version}),row(btn('4項目の疎通テスト',async b=>{b.disabled=true;try{await diagnostics()}finally{b.disabled=false}},'primary'),btn('接続設定',settings)),S.diagnostics.length?S.diagnostics.map(r=>{const d=node('details');add(d,node('summary','',`${r.name} — ${r.ok?'成功':'失敗'} (${r.ms} ms)`),node('pre','json',JSON.stringify(r.data,null,2)));return d}):node('p','muted','未実行')),box(h2('HTTP API対応表（'+ENDPOINTS.length+'件）'),table(['メソッド','パス','機能'],ENDPOINTS)),box(h2('仕様・制限'),kv({'HTTPメソッド':'GET / POST / OPTIONS（OPTIONSはブラウザーのCORSプリフライト）','JSON':'512 KB','コマンドJSON全体':'8 KB','テキスト読み込み':'1 MB','アップロード':'64 MB','URL取得':'100 MB','ZIP展開':'200 MB / 5000エントリ','コンソール':'最大2000行'}),row(node('a','','公式サイト'),node('a','','API仕様'))));const links=root.querySelectorAll('a');if(links.length>=2){links[0].href='https://fss.zpw.jp/';links[1].href='https://api.zpw.jp/fastserver/specs/';for(const a of links){a.target='_blank';a.rel='noopener noreferrer'}}}
+const SPEC=[{"method":"GET","path":"/check_alive","query":[],"body":{},"limit":"","responses":[{"status":"200","fields":{"status":"string (ok)","message":"string","timestamp":"number","uptime":"string","version":"string"}}]},{"method":"GET","path":"/api/check_alive","query":[],"body":{},"limit":"","responses":[{"status":"200","fields":{"status":"string (ok)","uptime":"string","timestamp":"number"}}]},{"method":"GET","path":"/api/check_plan","query":[],"body":{},"limit":"","responses":[{"status":"200","fields":{"ok":"boolean","plan":"string (pro)"}},{"status":"200","fields":{"ok":"boolean","plan":"string (normal)"}}]},{"method":"GET","path":"/api","query":[],"body":{},"limit":"","responses":[{"status":"200","fields":{"ok":"boolean","message":"string","timestamp":"number"}},{"status":"401","fields":{"error":"string"}},{"status":"403","fields":{"error":"string"}}]},{"method":"GET","path":"/api/servers","query":[],"body":{},"limit":"","responses":[{"status":"200","fields":{"servers":"object[]: id, name, software, version, path, status","timestamp":"number"}}]},{"method":"GET","path":"/api/servers/{id}","query":[],"body":{},"limit":"","responses":[{"status":"200","fields":{"id":"string","servername":"string","software":"string","version":"string","serverpath":"string","status":"string (RUNNING)","exists":"boolean","timestamp":"number"}},{"status":"404","fields":{"error":"string"}}]},{"method":"GET","path":"/api/servers/{id}/status","query":[],"body":{},"limit":"","responses":[{"status":"200","fields":{"id":"string","status":"string (RUNNING)","timestamp":"number"}}]},{"method":"POST","path":"/api/servers/{id}/start","query":[],"body":{},"limit":"","responses":[{"status":"200","fields":{"ok":"boolean","status":"string (STARTING)","timestamp":"number"}},{"status":"500","fields":{"status":"string (false)","message":"string","timestamp":"number","uptime":"string"}}]},{"method":"POST","path":"/api/servers/{id}/stop","query":[],"body":{},"limit":"","responses":[{"status":"200","fields":{"ok":"boolean","status":"string (STOPPING)","timestamp":"number"}},{"status":"200","fields":{"ok":"boolean","status":"string (NOT_RUNNING)","timestamp":"number"}}]},{"method":"POST","path":"/api/servers/{id}/restart","query":[],"body":{},"limit":"","responses":[{"status":"200","fields":{"ok":"boolean","status":"string (STARTING)","timestamp":"number"}}]},{"method":"POST","path":"/api/servers/{id}/command","query":[],"body":{"command":"string (required)"},"limit":"8 KB","responses":[{"status":"200","fields":{"ok":"boolean","command":"string","timestamp":"number"}},{"status":"500","fields":{"status":"string (false)","message":"string","timestamp":"number","uptime":"string"}},{"status":"500","fields":{"status":"string (false)","message":"string","timestamp":"number","uptime":"string"}}]},{"method":"GET","path":"/api/servers/{id}/console/tail","query":[["lines","(int, optional, default: 200)"]],"body":{},"limit":"","responses":[{"status":"200","fields":{"id":"string","lines":"number","log":"string[]","timestamp":"number"}},{"status":"500","fields":{"status":"string (false)","message":"string","timestamp":"number","uptime":"string"}}]},{"method":"GET","path":"/api/servers/{id}/files/list","query":[["path","(string, optional, default: )"]],"body":{},"limit":"","responses":[{"status":"200","fields":{"path":"string","items":"object[]: name, type, size","timestamp":"number"}}]},{"method":"GET","path":"/api/servers/{id}/files/read","query":[["path","(string, required)"]],"body":{},"limit":"","responses":[{"status":"200","fields":{"path":"string","content":"string","timestamp":"number"}},{"status":"500","fields":{"status":"string (false)","message":"string","timestamp":"number","uptime":"string"}}]},{"method":"POST","path":"/api/servers/{id}/files/write","query":[],"body":{"path":"string (required)","content":"string (required)"},"limit":"512 KB","responses":[{"status":"200","fields":{"path":"string","ok":"boolean","timestamp":"number"}}]},{"method":"POST","path":"/api/servers/{id}/files/create","query":[],"body":{"path":"string (required)"},"limit":"512 KB","responses":[{"status":"200","fields":{"path":"string","ok":"boolean","timestamp":"number"}}]},{"method":"POST","path":"/api/servers/{id}/files/mkdir","query":[],"body":{"path":"string (required)","parents":"boolean (default true)"},"limit":"512 KB","responses":[{"status":"200","fields":{"path":"string","ok":"boolean","timestamp":"number"}}]},{"method":"POST","path":"/api/servers/{id}/files/delete","query":[],"body":{"path":"string (required)","recursive":"boolean (default false)"},"limit":"512 KB","responses":[{"status":"200","fields":{"deleted":"string","ok":"boolean","timestamp":"number"}},{"status":"500","fields":{"status":"string (false)","message":"string","timestamp":"number","uptime":"string"}}]},{"method":"POST","path":"/api/servers/{id}/files/rename","query":[],"body":{"from":"string (required)","to":"string (required)","overwrite":"boolean (default false)"},"limit":"512 KB","responses":[{"status":"200","fields":{"from":"string","to":"string","ok":"boolean","timestamp":"number"}}]},{"method":"POST","path":"/api/servers/{id}/files/copy","query":[],"body":{"from":"string (required)","to":"string (required)","overwrite":"boolean (default false)"},"limit":"512 KB","responses":[{"status":"200","fields":{"from":"string","to":"string","ok":"boolean","timestamp":"number"}}]},{"method":"POST","path":"/api/servers/{id}/files/upload","query":[["path","(string, required)"],["overwrite","(boolean, optional, default: true)"]],"body":{"形式":"binary"},"limit":"64 MB","responses":[{"status":"200","fields":{"path":"string","bytes":"number","ok":"boolean","timestamp":"number"}},{"status":"500","fields":{"status":"string (false)","message":"string","timestamp":"number","uptime":"string"}}]},{"method":"GET","path":"/api/servers/{id}/files/download","query":[["path","(string, required)"]],"body":{},"limit":"","responses":[{"status":"200","fields":{"形式":"binary（Content-Dispositionあり）"}},{"status":"500","fields":{"status":"string (false)","message":"string","timestamp":"number","uptime":"string"}}]},{"method":"POST","path":"/api/servers/{id}/files/fetch","query":[],"body":{"url":"string (http/https required)","path":"string","overwrite":"boolean (default true)"},"limit":"512 KB","responses":[{"status":"200","fields":{"path":"string","bytes":"number","ok":"boolean","timestamp":"number"}},{"status":"500","fields":{"status":"string (false)","message":"string","timestamp":"number","uptime":"string"}}]},{"method":"POST","path":"/api/servers/{id}/files/zip","query":[],"body":{"source":"string (directory)","zip_path":"string (zip file path)"},"limit":"512 KB","responses":[{"status":"200","fields":{"job":"object: id, type, status","timestamp":"number"}}]},{"method":"POST","path":"/api/servers/{id}/files/unzip","query":[],"body":{"zip_path":"string (zip file)","dest":"string (target directory)"},"limit":"512 KB","responses":[{"status":"200","fields":{"job":"object: id, type, status","timestamp":"number"}}]},{"method":"GET","path":"/api/jobs","query":[],"body":{},"limit":"","responses":[{"status":"200","fields":{"jobs":"object[]: id, type, status, progress, processed_bytes, total_bytes, source, target, started_at","timestamp":"number"}}]},{"method":"GET","path":"/api/jobs/{id}","query":[],"body":{},"limit":"","responses":[{"status":"200","fields":{"id":"string","type":"string","status":"string (completed)","progress":"number","processed_bytes":"number","total_bytes":"number","source":"string","target":"string","started_at":"number","finished_at":"number","message":"string","timestamp":"number"}},{"status":"404","fields":{"error":"string"}}]},{"method":"POST","path":"/api/jobs/{id}/cancel","query":[],"body":{},"limit":"","responses":[{"status":"200","fields":{"id":"string","type":"string","status":"string (canceled)","message":"string","finished_at":"number","timestamp":"number"}},{"status":"500","fields":{"status":"string (false)","message":"string","timestamp":"number","uptime":"string"}}]}];
+function renderReference(root){
+const list=node('div'),count=node('small','muted'),method=node('select');method.setAttribute('aria-label','HTTPメソッド');for(const [v,t] of [['','全メソッド'],['GET','GET'],['POST','POST']]){const o=node('option','',t);o.value=v;method.append(o)}
+const search=searchInput('','APIパス・パラメータ・機能を検索',()=>draw());
+function draw(){const q=search.value.toLowerCase();const entries=SPEC.filter((s,i)=>(!method.value||s.method===method.value)&&JSON.stringify([s,ENDPOINTS[i][2]]).toLowerCase().includes(q));count.textContent=entries.length+' / '+SPEC.length+' 件';list.replaceChildren();for(const s of entries){const i=SPEC.indexOf(s),d=node('details');const summary=node('summary');add(summary,node('strong','',s.method+'  '+s.path),node('small','muted',' — '+ENDPOINTS[i][2]));add(d,summary,kv({'認証':'キー設定時は Bearer または x-fs-key','リクエスト上限':s.limit||'—','クエリ':s.query.length?s.query.map(x=>x.join(' ')).join(' / '):'なし'}));if(Object.keys(s.body).length)add(d,h2('リクエスト項目'),node('pre','json',JSON.stringify(s.body,null,2)));add(d,h2('レスポンス項目'));for(const r of s.responses)add(d,node('p','muted','HTTP '+r.status),node('pre','json',JSON.stringify(r.fields,null,2)));list.append(d)}if(!entries.length)list.append(empty('一致するAPIがありません。'))}
+method.onchange=draw;const source=node('a','','公式API仕様を開く');source.href='https://api.zpw.jp/fastserver/specs/';source.target='_blank';source.rel='noopener noreferrer';add(root,box(h2('FastServer HTTP API Specification'),node('p','muted','添付された公式仕様HTMLを基に、引数・応答フィールド・制限を整理しました。レスポンスはフィールドの型を表し、実際の応答値ではありません。'),kv({'日時':'APIの timestamp / started_at / finished_at は Unix秒','パス':'サーバー基準の相対パスのみ。絶対パス・バックスラッシュ・コロン・..・ワイルドカードは不可。','認証':'APIはグローバル設定で有効化が必要。キー設定時にヘッダーで認証。','CORS':'GET / POST / OPTIONS、content-type / authorization / x-fs-key','エラー':'401 認証失敗 / 403 API無効 / 404 不明な対象 / 405 メソッド不許可 / 500 処理エラー'}),source),box(row(search,method,count),list));draw()}
+function init(){let config={};try{config=JSON.parse(storageGet('fsmp-v2-settings')||'{}')}catch{}try{if(config.base)S.base=normalizeBase(config.base)}catch{}if(['bearer','x-fs-key'].includes(config.auth))S.auth=config.auth;if(typeof config.auto==='boolean')S.auto=config.auto;if(Number.isInteger(config.interval)&&config.interval>=5&&config.interval<=300)S.interval=config.interval;if(['light','dark'].includes(config.theme))document.documentElement.dataset.theme=config.theme;/* Do not import legacy settings or secrets; leave the previous panel's storage intact. */for(const [key,[title]] of Object.entries(PAGES)){const b=btn(title,()=>switchView(key));b.dataset.page=key;$('nav').append(b)}$('serverSelect').onchange=e=>{if(!S.busy){setServer(e.target.value);render();refresh()}};$('settings').onclick=()=>{if(!S.busy)settings()};$('refresh').onclick=()=>refresh();$('theme').onclick=()=>{const theme=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=theme;const old=storageGet('fsmp-v2-settings');if(old){try{storageSet('fsmp-v2-settings',JSON.stringify({...JSON.parse(old),theme}))}catch{}}};updateHeader();render();autoTimer()}
+init();
+</script>
+</body></html>
